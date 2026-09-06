@@ -18,8 +18,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
+// Middlewares
 app.use(cors({
-  origin: 'http://localhost:3000', // Payagan ang Next.js frontend
+  origin: [
+    'http://localhost:3000', 
+    'https://school-clinic-system.vercel.app' // 👈 IDINAGDAG ANG LIVE VERCEL LINK
+  ],
   credentials: true
 }));
 app.use(express.json());
