@@ -18,7 +18,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
-// Middlewares
 app.use(cors({
   origin: [
     'http://localhost:3000', 
@@ -41,8 +40,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'School Clinic API is running! 🚀' });
 });
 
-// Start the server
-app.listen(PORT, () => {
+// ==========================================================
+// 👇 DITO ANG BINAGO NATIN PARA HINDI MAG-TIMEOUT SA RENDER 
+// ==========================================================
+app.listen(PORT as number, '0.0.0.0', () => {
   console.log(`========================================`);
   console.log(`🚀 Backend Server running on port ${PORT}`);
   console.log(`🔗 Test URL: http://localhost:${PORT}/api/health`);
