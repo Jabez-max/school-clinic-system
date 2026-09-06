@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { GoogleLogin } from '@react-oauth/google';
-import Link from "next/link"; // 👈 IDINAGDAG: Kailangan ito para gumana ang page navigation
+import Link from "next/link"; 
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,7 +24,8 @@ export default function LoginPage() {
       if (!token || !userStr) return;
 
       try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
+        // 👇 BINAGO: Gumagamit na ng Environment Variable
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -32,7 +33,6 @@ export default function LoginPage() {
           const user = JSON.parse(userStr);
           const role = user.role?.toUpperCase();
           
-          // 👇 Gagamit tayo ng window.location.href para piliting mag-refresh ang React Context!
           if (role === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
           else if (role === "NURSE") window.location.href = "/nurse/dashboard";
           else if (role === "STUDENT") window.location.href = "/student/dashboard";
@@ -59,7 +59,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      // 👇 BINAGO: Gumagamit na ng Environment Variable
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -78,7 +79,6 @@ export default function LoginPage() {
 
         const userRole = (data.role || data.user?.role)?.toUpperCase();
 
-        // 👇 HARD RELOAD REDIRECT
         if (userRole === "NURSE") window.location.href = "/nurse/dashboard";
         else if (userRole === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
         else if (userRole === "STUDENT") window.location.href = "/student/dashboard";
@@ -100,7 +100,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/google", {
+      // 👇 BINAGO: Gumagamit na ng Environment Variable
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: credentialResponse.credential })
@@ -119,7 +120,6 @@ export default function LoginPage() {
 
         const userRole = (data.role || data.user?.role)?.toUpperCase();
 
-        // 👇 HARD RELOAD REDIRECT
         if (userRole === "NURSE") window.location.href = "/nurse/dashboard";
         else if (userRole === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
         else if (userRole === "STUDENT") window.location.href = "/student/dashboard";
