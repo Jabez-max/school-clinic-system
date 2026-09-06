@@ -20,8 +20,9 @@ const PORT = process.env.PORT || 5000;
 // Middlewares
 app.use(cors({
   origin: [
-    'http://localhost:3000', 
-    'https://school-clinic-system.vercel.app' // 👈 IDINAGDAG ANG LIVE VERCEL LINK
+    'http://localhost:3000',
+    'https://school-clinic-system.vercel.app',
+    /\.vercel\.app$/ // 👈 Pinapayagan nito ang LAHAT ng Vercel preview deployments
   ],
   credentials: true
 }));
