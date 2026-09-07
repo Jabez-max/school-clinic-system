@@ -31,7 +31,8 @@ export default function AnnouncementsPage() {
   const fetchAnnouncements = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/announcements", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/announcements`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -73,9 +74,10 @@ export default function AnnouncementsPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
     const url = editId 
-      ? `http://localhost:5000/api/nurse/announcements/${editId}` 
-      : "http://localhost:5000/api/nurse/announcements";
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/nurse/announcements/${editId}` 
+      : `${process.env.NEXT_PUBLIC_API_URL}/api/nurse/announcements`;
     const method = editId ? "PUT" : "POST";
 
     try {
@@ -108,7 +110,8 @@ export default function AnnouncementsPage() {
     setActiveMenuId(null);
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/announcements/${id}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/announcements/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status: newStatus })
@@ -130,7 +133,8 @@ export default function AnnouncementsPage() {
     setDeleteConfirm({ isOpen: false, id: "" });
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/announcements/${id}`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/announcements/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -359,7 +363,6 @@ export default function AnnouncementsPage() {
                       <option value="All Students & Staff">All Students & Staff</option>
                       <option value="Students Only">Students Only</option>
                       <option value="Teachers & Staff">Teachers & Staff</option>
-                      {/* IDINAGDAG NATIN ANG OPTION NA ITO: */}
                       <option value="HEAD_TEACHER">Head Teachers Only</option>
                       <option value="Parents / Guardians">Parents / Guardians</option>
                     </select>

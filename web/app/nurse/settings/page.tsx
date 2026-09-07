@@ -40,7 +40,8 @@ export default function SettingsPage() {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/nurse/profile", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();
@@ -72,7 +73,8 @@ export default function SettingsPage() {
     try {
       if (activeTab === "profile") {
         // SAVE PROFILE API
-        const res = await fetch("http://localhost:5000/api/nurse/profile", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify(profile)
@@ -91,7 +93,8 @@ export default function SettingsPage() {
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/nurse/change-password", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/change-password`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify({ id: profile.id, newPassword: passwords.newPassword })

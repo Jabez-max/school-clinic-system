@@ -27,19 +27,21 @@ export default function MedicalHistoryPage() {
   });
 
   // FETCH DATA MULA SA DATABASE
-  useEffect(() => {
+   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
         
         // Fetch Medical Histories
-        const resHistories = await fetch("http://localhost:5000/api/nurse/medical-history", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const resHistories = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/medical-history`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const dataHistories = await resHistories.json();
         
         // Fetch Students for dropdown
-        const resPatients = await fetch("http://localhost:5000/api/nurse/students", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const resPatients = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const dataPatients = await resPatients.json();
@@ -64,7 +66,8 @@ export default function MedicalHistoryPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/medical-history", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/medical-history`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +100,8 @@ export default function MedicalHistoryPage() {
 
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/medical-history/${historyId}/severity`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/medical-history/${historyId}/severity`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

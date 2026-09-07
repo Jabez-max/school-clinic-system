@@ -31,7 +31,8 @@ export default function MedicationsPage() {
   const fetchInventory = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/inventory", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/inventory`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -77,7 +78,8 @@ export default function MedicationsPage() {
     setIsSubmitting(true);
 
     const isEditing = !!formData.id;
-    const url = isEditing ? `http://localhost:5000/api/nurse/inventory/${formData.id}` : "http://localhost:5000/api/nurse/inventory";
+    // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+    const url = isEditing ? `${process.env.NEXT_PUBLIC_API_URL}/api/nurse/inventory/${formData.id}` : `${process.env.NEXT_PUBLIC_API_URL}/api/nurse/inventory`;
     const method = isEditing ? "PUT" : "POST";
 
     try {
@@ -108,7 +110,8 @@ export default function MedicationsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/nurse/inventory/${id}`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/inventory/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -129,7 +132,8 @@ export default function MedicationsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/inventory/${id}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/inventory/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status: newStatus })

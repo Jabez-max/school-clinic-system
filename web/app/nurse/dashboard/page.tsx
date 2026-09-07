@@ -15,7 +15,9 @@ export default function NurseDashboard() {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/nurse/dashboard-stats", {
+        
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/dashboard-stats`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

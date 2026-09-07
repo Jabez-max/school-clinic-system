@@ -15,7 +15,8 @@ export default function ProfileRequestsPage() {
   const fetchRequests = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/profile-requests", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile-requests`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -35,7 +36,8 @@ export default function ProfileRequestsPage() {
     setProcessingId(id);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/nurse/profile-requests/${id}`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile-requests/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -15,7 +15,7 @@ export default function StudentProfilePage() {
 
   // ================= MODAL STATES =================
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // 👈 BAGONG STATE PARA SA EDIT MODAL
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [visitForm, setVisitForm] = useState({
@@ -25,7 +25,6 @@ export default function StudentProfilePage() {
     medicineUsed: ""
   });
 
-  // 👈 BAGONG STATE PARA SA EDIT FORM
   const [editForm, setEditForm] = useState({
     firstName: "",
     lastName: "",
@@ -43,7 +42,8 @@ export default function StudentProfilePage() {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No token found. Please login again.");
 
-        const res = await fetch(`http://localhost:5000/api/nurse/students/${params.id}`, {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students/${params.id}`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         
@@ -53,7 +53,6 @@ export default function StudentProfilePage() {
         setStudent({ ...data.student, visits: data.student?.visits || [] });
         setSummary(data.summary);
         
-        // 👇 I-POPULATE ANG EDIT FORM KAPAG NAG-LOAD ANG DATA 👇
         setEditForm({
           firstName: data.student.firstName || "",
           lastName: data.student.lastName || "",
@@ -90,7 +89,8 @@ export default function StudentProfilePage() {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/nurse/students/${params.id}/visits`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students/${params.id}/visits`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(visitForm)
@@ -108,13 +108,13 @@ export default function StudentProfilePage() {
     }
   };
 
-  // 👇 BAGONG FUNCTION PARA I-SAVE ANG PROFILE EDITS 👇
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/nurse/students/${params.id}`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(editForm)
@@ -177,7 +177,6 @@ export default function StudentProfilePage() {
         {/* Left Column: Personal Info Card */}
         <div className="md:col-span-1 space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative">
-            {/* 👇 EDIT BUTTON 👇 */}
             <button 
               onClick={() => setIsEditModalOpen(true)}
               className="absolute top-4 right-4 p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"

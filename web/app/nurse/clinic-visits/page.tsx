@@ -47,7 +47,8 @@ export default function ClinicVisitsPage() {
       const token = localStorage.getItem("token");
       
       // Kukunin natin lahat ng data para kayang i-filter ng buong history
-      const resVisits = await fetch(`http://localhost:5000/api/nurse/clinic-visits`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const resVisits = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/clinic-visits`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const dataVisits = await resVisits.json();
@@ -122,7 +123,8 @@ export default function ClinicVisitsPage() {
       const delay = setTimeout(async () => {
         try {
           const token = localStorage.getItem("token");
-          const res = await fetch(`http://localhost:5000/api/nurse/students?search=${patientSearch}&limit=5`, { 
+          // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students?search=${patientSearch}&limit=5`, { 
             headers: { "Authorization": `Bearer ${token}` }
           });
           
@@ -151,7 +153,8 @@ export default function ClinicVisitsPage() {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/nurse/students/${formData.patientId}/visits`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students/${formData.patientId}/visits`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({
@@ -187,7 +190,8 @@ export default function ClinicVisitsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/nurse/clinic-visits/${id}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/clinic-visits/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status: newStatus })

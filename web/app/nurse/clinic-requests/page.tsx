@@ -22,14 +22,16 @@ export default function NurseClinicRequestsPage() {
       const token = localStorage.getItem("token");
       
       // Kunin ang mga nagawang requests
-      const reqRes = await fetch("http://localhost:5000/api/nurse/clinic-requests", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const reqRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/clinic-requests`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const reqJson = await reqRes.json();
       if (reqRes.ok) setRequests(reqJson.clinicRequests);
 
       // Kunin ang listahan ng lahat ng students/patients para sa dropdown form
-      const patRes = await fetch("http://localhost:5000/api/nurse/patients", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const patRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/patients`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const patJson = await patRes.json();
@@ -53,7 +55,8 @@ export default function NurseClinicRequestsPage() {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/clinic-requests", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/clinic-requests`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

@@ -29,7 +29,8 @@ export default function ReportsPage() {
   const fetchReports = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/reports", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/reports`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -52,7 +53,8 @@ export default function ReportsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/reports", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/reports`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({
@@ -85,7 +87,8 @@ export default function ReportsPage() {
     setActiveMenuId(null);
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/reports/${id}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/reports/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status: "ARCHIVED" })
@@ -108,7 +111,8 @@ export default function ReportsPage() {
     setDeleteConfirm({ isOpen: false, id: "" });
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/reports/${id}`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/reports/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -310,7 +314,6 @@ export default function ReportsPage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           
-                          {/* BINAGO: Ipinapasa na natin ang buong 'report' object sa handleDownload */}
                           <Button 
                             variant="ghost" 
                             size="icon" 

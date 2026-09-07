@@ -19,7 +19,8 @@ export default function NewVisitPage() {
     if (searchQuery.length > 2) {
       const delay = setTimeout(async () => {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:5000/api/students?search=${searchQuery}&limit=5`, { headers: { "Authorization": `Bearer ${token}` }});
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/students?search=${searchQuery}&limit=5`, { headers: { "Authorization": `Bearer ${token}` }});
         if (res.ok) {
           const data = await res.json();
           setSearchResults(data.students);
@@ -44,7 +45,8 @@ export default function NewVisitPage() {
     
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/clinic-visits", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clinic-visits`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ patientId: selectedStudent.id, ...formData })

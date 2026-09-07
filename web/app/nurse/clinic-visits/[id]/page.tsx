@@ -31,7 +31,8 @@ export default function ClinicVisitDetailsPage() {
   const fetchVisit = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/clinic-visits/${params.id}`, { headers: { "Authorization": `Bearer ${token}` } });
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clinic-visits/${params.id}`, { headers: { "Authorization": `Bearer ${token}` } });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       
@@ -74,7 +75,8 @@ export default function ClinicVisitDetailsPage() {
         weight: formData.weight ? parseFloat(formData.weight.toString()) : null,
       };
 
-      const res = await fetch(`http://localhost:5000/api/clinic-visits/${params.id}`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clinic-visits/${params.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -94,7 +96,8 @@ export default function ClinicVisitDetailsPage() {
   const handleStatusUpdate = async (newStatus: string) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/clinic-visits/${params.id}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clinic-visits/${params.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status: newStatus })

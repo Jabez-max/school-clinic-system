@@ -37,12 +37,14 @@ export default function HealthRecordsPage() {
       try {
         const token = localStorage.getItem("token");
         
-        const resRecords = await fetch("http://localhost:5000/api/nurse/health-records", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const resRecords = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/health-records`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const dataRecords = await resRecords.json();
         
-        const resPatients = await fetch("http://localhost:5000/api/nurse/students", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const resPatients = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const dataPatients = await resPatients.json();
@@ -72,7 +74,8 @@ export default function HealthRecordsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/health-records", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/health-records`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,7 +111,8 @@ export default function HealthRecordsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/health-records/${recordId}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/health-records/${recordId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

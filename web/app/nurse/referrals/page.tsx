@@ -32,12 +32,14 @@ export default function ReferralsPage() {
       try {
         const token = localStorage.getItem("token");
         
-        const resReferrals = await fetch("http://localhost:5000/api/nurse/referrals", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const resReferrals = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/referrals`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const dataReferrals = await resReferrals.json();
         
-        const resPatients = await fetch("http://localhost:5000/api/nurse/students", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const resPatients = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const dataPatients = await resPatients.json();
@@ -62,7 +64,8 @@ export default function ReferralsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/referrals", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/referrals`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +100,8 @@ export default function ReferralsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/referrals/${referralId}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/referrals/${referralId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -235,7 +239,7 @@ export default function ReferralsPage() {
                           
                           <div className="flex items-center justify-end gap-1">
                             
-                            {/* ACTION 1: VIEW DOCUMENT (Naka-connect na dito yung function!) */}
+                            {/* ACTION 1: VIEW DOCUMENT */}
                             <Button 
                               variant="ghost" 
                               size="icon" 
@@ -246,7 +250,7 @@ export default function ReferralsPage() {
                               <FileText className="h-4 w-4" />
                             </Button>
                             
-                            {/* ACTION 2: PRINT SLIP (Naka-connect na dito yung function!) */}
+                            {/* ACTION 2: PRINT SLIP */}
                             <Button 
                               variant="ghost" 
                               size="icon" 

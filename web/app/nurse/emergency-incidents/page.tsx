@@ -33,13 +33,15 @@ export default function EmergencyIncidentsPage() {
       const token = localStorage.getItem("token");
       
       // Fetch Incidents
-      const resIncidents = await fetch("http://localhost:5000/api/nurse/emergency-incidents", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const resIncidents = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/emergency-incidents`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const dataIncidents = await resIncidents.json();
 
       // Fetch Students/Patients for the dropdown
-      const resPatients = await fetch("http://localhost:5000/api/nurse/students", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const resPatients = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const dataPatients = await resPatients.json();
@@ -68,7 +70,8 @@ export default function EmergencyIncidentsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/emergency-incidents", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/emergency-incidents`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(formData)
@@ -95,7 +98,8 @@ export default function EmergencyIncidentsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/emergency-incidents/${id}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/emergency-incidents/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status: newStatus })

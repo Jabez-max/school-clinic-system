@@ -18,7 +18,8 @@ export default function AuditLogsPage() {
     const fetchLogs = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/nurse/audit-logs", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/audit-logs`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();

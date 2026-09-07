@@ -31,8 +31,8 @@ export default function StudentsPage() {
         throw new Error("No authentication token found. Please login again.");
       }
 
-      // 👇 FIX: Binago ang URL mula /api/students papuntang /api/nurse/students
-      const res = await fetch(`http://localhost:5000/api/nurse/students?page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}&grade=${gradeFilter}`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students?page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}&grade=${gradeFilter}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       
@@ -82,7 +82,8 @@ export default function StudentsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/students/${studentId}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students/${studentId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -102,8 +103,8 @@ export default function StudentsPage() {
     
     try {
       const token = localStorage.getItem("token");
-      // 👇 NOTE: Tiyaking nasa /api/nurse/students din ito kung nandoon ang archive endpoint
-      const res = await fetch(`http://localhost:5000/api/nurse/students/${studentId}/archive`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students/${studentId}/archive`, {
         method: "PATCH",
         headers: { "Authorization": `Bearer ${token}` }
       });

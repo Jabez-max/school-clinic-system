@@ -30,7 +30,8 @@ export default function InventoryPage() {
   const fetchSupplies = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/nurse/medical-supplies", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/medical-supplies`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -74,7 +75,8 @@ export default function InventoryPage() {
     setIsSubmitting(true);
 
     const isEditing = !!formData.id;
-    const url = isEditing ? `http://localhost:5000/api/nurse/medical-supplies/${formData.id}` : "http://localhost:5000/api/nurse/medical-supplies";
+    // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+    const url = isEditing ? `${process.env.NEXT_PUBLIC_API_URL}/api/nurse/medical-supplies/${formData.id}` : `${process.env.NEXT_PUBLIC_API_URL}/api/nurse/medical-supplies`;
     const method = isEditing ? "PUT" : "POST";
 
     try {
@@ -105,7 +107,8 @@ export default function InventoryPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/nurse/medical-supplies/${id}`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/medical-supplies/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -126,7 +129,8 @@ export default function InventoryPage() {
 
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/nurse/medical-supplies/${id}/status`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/medical-supplies/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status: newStatus })
@@ -256,7 +260,6 @@ export default function InventoryPage() {
                         </p>
                       </td>
                       <td className="px-6 py-4">
-                        {/* IDINAGDAG ANG whitespace-nowrap AT inline-block DITO PARA HINDI MAHATI SA DALAWANG LINYA */}
                         <span className={`whitespace-nowrap inline-block px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${getStatusStyle(item.status)}`}>
                           {item.status}
                         </span>

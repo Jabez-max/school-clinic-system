@@ -25,7 +25,8 @@ export default function AnalyticsPage() {
     const fetchAnalytics = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/nurse/analytics", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/analytics`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();
@@ -200,7 +201,7 @@ export default function AnalyticsPage() {
               ))
             ) : (
                <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm">
-                 No visits recorded this month yet.
+                  No visits recorded this month yet.
                </div>
             )}
           </div>
