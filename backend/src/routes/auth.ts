@@ -216,8 +216,10 @@ router.post('/google', async (req: any, res: any): Promise<any> => {
 
     res.json({ message: 'Google login successful', token, role: user.role, user: { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role } });
 
-  } catch (error) {
-    res.status(500).json({ error: 'Google Authentication failed. Make sure GOOGLE_CLIENT_ID is correct.' });
+  } catch (error: any) {
+    // 👇 IPINAPAKITA NA NGAYON ANG TOTOONG ERROR SA LOGS AT SA UI 👇
+    console.error('\n[BACKEND] ❌ GOOGLE AUTH ERROR:', error);
+    res.status(500).json({ error: `Google Auth Error: ${error.message}` });
   }
 });
 
