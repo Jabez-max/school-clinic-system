@@ -3,7 +3,9 @@ import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'SUPER_SECURE_CLINIC_KEY_2026';
+
+// 👇 Itinama ko lang ang fallback key para eksaktong match sa .env mo
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_clinic_key_2026';
 
 // Middleware for universal authentication & RBAC
 const authenticateAndAuthorize = async (req: any, res: any, next: any) => {

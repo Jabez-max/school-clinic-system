@@ -4,7 +4,9 @@ import bcrypt from 'bcryptjs';
 import prisma from '../lib/prisma';
 
 const router = Router();
-const JWT_SECRET = 'SUPER_SECURE_CLINIC_KEY_2026';
+
+// 👇 BINAGO: Gumagamit na ng environment variable para sa JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_clinic_key_2026';
 
 // Middleware for universal authentication & RBAC context
 const authenticateAndAuthorize = async (req: any, res: any, next: any) => {

@@ -39,7 +39,8 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      // 👇 BINAGO: Ginamit ang Environment Variable sa halip na localhost 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
