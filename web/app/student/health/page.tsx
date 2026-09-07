@@ -24,7 +24,8 @@ export default function MyHealthPage() {
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/student/health", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/student/health`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
 
