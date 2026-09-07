@@ -10,7 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-// 👇 IMPORT ANG MODAL NA GINAWA NATIN KANINA 👇
 // Tandaan: Baguhin ang path kung nai-save mo ito sa ibang folder (e.g., "@/components/ProfileUpdateModal")
 import ProfileUpdateModal from "@/components/ProfileUpdateModal";
 
@@ -20,7 +19,7 @@ export default function StudentDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   
-  // 👇 STATE PARA SA PROFILE UPDATE MODAL 👇
+  // STATE PARA SA PROFILE UPDATE MODAL
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const fetchDashboardData = async () => {
@@ -34,7 +33,8 @@ export default function StudentDashboardPage() {
         return;
       }
 
-      const res = await fetch("http://localhost:5000/api/student/dashboard", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/student/dashboard`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       
@@ -116,7 +116,7 @@ export default function StudentDashboardPage() {
           </p>
         </div>
         
-        {/* 👇 IDINAGDAG: ACTION BUTTONS SA HEADER 👇 */}
+        {/* ACTION BUTTONS SA HEADER */}
         <div className="flex flex-col sm:flex-row gap-3 relative z-10 w-full md:w-auto">
           <Button 
             onClick={() => setIsProfileModalOpen(true)}
@@ -237,11 +237,11 @@ export default function StudentDashboardPage() {
               </div>
               <div className="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
                 <span className="text-sm text-slate-500 font-medium">Blood Type</span>
-                <span className="text-sm font-bold text-slate-800">{healthSummary.bloodType || "Unknown"}</span>
+                <span className="text-sm font-bold text-slate-800">{healthSummary?.bloodType || "Unknown"}</span>
               </div>
               <div className="flex flex-col p-3 bg-slate-50 rounded-xl border border-slate-100">
                 <span className="text-sm text-slate-500 font-medium mb-1">Known Allergies</span>
-                <span className="text-sm font-semibold text-slate-800">{healthSummary.allergies || "None"}</span>
+                <span className="text-sm font-semibold text-slate-800">{healthSummary?.allergies || "None"}</span>
               </div>
               
               <Link href="/student/health" className="block mt-2">
@@ -279,7 +279,7 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      {/* 👇 DITO NATIN I-RE-RENDER ANG MODAL KAPAG PININDOT ANG BUTTON 👇 */}
+      {/* RENDER MODAL */}
       <ProfileUpdateModal 
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
