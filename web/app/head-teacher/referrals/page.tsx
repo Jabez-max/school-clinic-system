@@ -29,7 +29,8 @@ export default function NewReferralPage() {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No active session found.");
 
-        const res = await fetch("http://localhost:5000/api/head-teacher/students/search", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/head-teacher/students/search`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         
@@ -60,7 +61,8 @@ export default function NewReferralPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/head-teacher/referrals", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/head-teacher/referrals`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

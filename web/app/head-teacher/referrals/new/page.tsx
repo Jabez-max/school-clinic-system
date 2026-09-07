@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { ChevronLeft, Send, AlertCircle, Stethoscope, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -28,7 +29,8 @@ export default function NewReferralPage() {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No active session found.");
 
-        const res = await fetch("http://localhost:5000/api/head-teacher/students/search", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/head-teacher/students/search`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         
@@ -59,7 +61,8 @@ export default function NewReferralPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/head-teacher/referrals", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/head-teacher/referrals`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -77,7 +80,7 @@ export default function NewReferralPage() {
       // Kapag Success
       setSuccess(true);
       setTimeout(() => {
-        // BINAGO: Ibalik sa Referrals Table imbes na sa Dashboard!
+        // Ibalik sa Referrals Table imbes na sa Dashboard
         router.push("/head-teacher/referrals"); 
       }, 2000);
 
@@ -110,7 +113,6 @@ export default function NewReferralPage() {
           <ChevronLeft className="h-4 w-4 mr-1" /> Back to Referrals
         </button>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-          {/* BINAGO ANG KULAY PARA PUMANTAY SA THEME */}
           <Stethoscope className="h-6 w-6 text-blue-600" /> Clinic Referral Form
         </h1>
         <p className="text-sm text-slate-500 mt-1">
@@ -194,7 +196,6 @@ export default function NewReferralPage() {
             <Button 
               type="submit" 
               disabled={isSubmitting || !patientId || !reason}
-              // BINAGO ANG KULAY PARA PUMANTAY SA THEME
               className="bg-blue-600 hover:bg-blue-700 text-white min-w-[140px]"
             >
               {isSubmitting ? (
@@ -204,7 +205,7 @@ export default function NewReferralPage() {
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  <div className="h-4 w-4" /> Submit Referral
+                  <Send className="h-4 w-4" /> Submit Referral
                 </span>
               )}
             </Button>

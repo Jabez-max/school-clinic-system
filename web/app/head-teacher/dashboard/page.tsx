@@ -40,7 +40,8 @@ export default function HeadTeacherDashboard() {
         throw new Error("No active session found. Please log in.");
       }
 
-      const res = await fetch("http://localhost:5000/api/head-teacher/dashboard", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/head-teacher/dashboard`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -71,7 +72,8 @@ export default function HeadTeacherDashboard() {
     setIsCancelling(referralId);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/head-teacher/referrals/${referralId}/cancel`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/head-teacher/referrals/${referralId}/cancel`, {
         method: "PATCH",
         headers: {
           "Authorization": `Bearer ${token}`,

@@ -46,7 +46,8 @@ export default function StudentProfilePage() {
     setError("");
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/head-teacher/students/${studentId}`, {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/head-teacher/students/${studentId}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -90,7 +91,8 @@ export default function StudentProfilePage() {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/head-teacher/referrals", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/head-teacher/referrals`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

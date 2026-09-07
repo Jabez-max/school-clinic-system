@@ -17,7 +17,8 @@ export default function HeadTeacherNotificationsPage() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No active session found. Please log in.");
 
-      const res = await fetch("http://localhost:5000/api/head-teacher/notifications", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/head-teacher/notifications`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
