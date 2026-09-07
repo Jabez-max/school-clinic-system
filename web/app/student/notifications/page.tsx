@@ -21,7 +21,8 @@ export default function NotificationsPage() {
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/student/notifications", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/student/notifications`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
 

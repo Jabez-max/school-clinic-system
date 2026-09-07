@@ -25,7 +25,8 @@ export default function RequestVisitPage() {
         return;
       }
 
-      const res = await fetch("http://localhost:5000/api/student/request-visit", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/student/request-visit`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

@@ -24,7 +24,8 @@ export default function SettingsPage() {
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/student/dashboard", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/student/dashboard`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
 
@@ -59,8 +60,8 @@ export default function SettingsPage() {
         return;
       }
 
-      // Tawagin ang bagong backend endpoint natin
-      const res = await fetch("http://localhost:5000/api/student/settings/password", {
+      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/student/settings/password`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -155,7 +156,6 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Dito natin ipapakita kung may error gaya ng maling current password */}
           {error && (
             <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-center gap-2">
               <AlertCircle className="h-4 w-4" /> {error}

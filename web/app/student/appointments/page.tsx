@@ -24,7 +24,8 @@ export default function AppointmentsPage() {
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/student/appointments", {
+        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/student/appointments`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
 
