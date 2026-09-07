@@ -3,7 +3,9 @@ import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 
 const router = Router();
-const JWT_SECRET = 'SUPER_SECURE_CLINIC_KEY_2026';
+
+// 👇 BINAGO: Kukunin na ang JWT_SECRET sa .env mo!
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_clinic_key_2026';
 
 // Middleware: Authenticate & Verify HEAD_TEACHER Role
 const requireHeadTeacher = async (req: any, res: any, next: any) => {
