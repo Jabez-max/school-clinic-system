@@ -1,31 +1,22 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 
 export async function POST() {
   try {
-    // FIX: Nilagyan din natin ng 'await' ang cookies()
     const cookieStore = await cookies();
     const token = cookieStore.get("auth_token")?.value;
 
+    // Tinatawag nito ang backend API mo sa Render para i-save sa database ang logout log
     if (token) {
-      const payload = await verifyToken(token);
-      if (payload && payload.id) {
-        // Log the logout action securely
-        await prisma.auditLog.create({
-          data: {
-            action: "USER_LOGOUT",
-            entityType: "USER",
-            entityId: payload.id as string,
-            performedBy: payload.id as string,
-            details: "User logged out securely.",
-          }
-        });
-      }
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout-log`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      }).catch(err => console.error("Failed to log logout to backend:", err));
     }
 
-    // Delete the cookie
+    // Delete the cookie para ma-log out ang user sa frontend
     const response = NextResponse.json({ message: "Logged out successfully" });
     response.cookies.delete("auth_token");
     
