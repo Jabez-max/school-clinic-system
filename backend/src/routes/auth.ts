@@ -263,11 +263,9 @@ router.post('/logout-log', verifyToken, async (req: any, res: any): Promise<any>
   try {
     await prisma.auditLog.create({
       data: {
+        userId: req.user.id, // <--- Ito na lang ang naiwan base sa schema mo
         action: "USER_LOGOUT",
-        entityType: "USER",
-        entityId: req.user.id,
-        performedBy: req.user.id,
-        details: "User logged out securely.",
+        details: "User logged out securely."
       }
     });
     res.status(200).json({ message: "Logout logged successfully" });
