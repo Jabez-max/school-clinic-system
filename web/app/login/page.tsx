@@ -24,7 +24,6 @@ export default function LoginPage() {
       if (!token || !userStr) return;
 
       try {
-        // 👇 BINAGO: Gumagamit na ng Environment Variable
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -59,7 +58,6 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // 👇 BINAGO: Gumagamit na ng Environment Variable
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -100,7 +98,6 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // 👇 BINAGO: Gumagamit na ng Environment Variable
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -152,7 +149,7 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="space-y-5" autoComplete="off" suppressHydrationWarning>
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1" htmlFor="email">
-             Email Address
+               Email Address
             </label>
             <input
               id="email"
@@ -162,7 +159,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all text-slate-800 placeholder:text-slate-400"
               placeholder="Username or Email"
               disabled={loading}
             />
@@ -181,7 +178,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all pr-10"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all pr-10 text-slate-800 placeholder:text-slate-400"
                 placeholder="••••••••"
                 disabled={loading}
               />
@@ -225,7 +222,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* 👇 IDINAGDAG: REGISTRATION LINK 👇 */}
         <div className="text-center mt-6 text-sm text-slate-500">
           Don't have an account yet?{' '}
           <Link href="/register" className="text-blue-600 font-bold hover:underline">
