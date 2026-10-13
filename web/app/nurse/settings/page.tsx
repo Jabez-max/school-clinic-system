@@ -21,7 +21,7 @@ export default function SettingsPage() {
     schoolId: ""
   });
 
-  // 🟢 BAGO: State para i-store ang original profile data para sa Cancel button
+  // State para i-store ang original profile data para sa Cancel button
   const [initialProfile, setInitialProfile] = useState({
     id: "",
     firstName: "",
@@ -44,7 +44,7 @@ export default function SettingsPage() {
     dailySummary: false
   });
 
-  // 🟢 BAGO: State para i-store ang original notifications config
+  // State para i-store ang original notifications config
   const [initialNotifications, setInitialNotifications] = useState({
     emergencyAlerts: true,
     lowStock: true,
@@ -71,7 +71,7 @@ export default function SettingsPage() {
           };
           
           setProfile(fetchedData);
-          setInitialProfile(fetchedData); // 🟢 BAGO: I-save rin ang original data
+          setInitialProfile(fetchedData); // I-save rin ang original data
         }
       } catch (err) {
         console.error("Failed to load profile", err);
@@ -83,7 +83,7 @@ export default function SettingsPage() {
     fetchProfile();
   }, []);
 
-  // 🟢 BAGO: Cancel Handler
+  // Cancel Handler
   const handleCancel = () => {
     if (activeTab === "profile") {
       setProfile(initialProfile); // Ibalik sa original fetched profile
@@ -108,7 +108,7 @@ export default function SettingsPage() {
         });
 
         if (res.ok) {
-          setInitialProfile(profile); // 🟢 BAGO: Update din ang initial state para kung mag-cancel ulit
+          setInitialProfile(profile); // Update din ang initial state para kung mag-cancel ulit
           setPopupMessage({ isOpen: true, title: "Profile Updated!", message: "Your personal information has been successfully saved to the database." });
         }
       } 
@@ -134,7 +134,7 @@ export default function SettingsPage() {
 
       else if (activeTab === "notifications") {
         setTimeout(() => {
-          setInitialNotifications(notifications); // 🟢 BAGO: Update din ang initial state
+          setInitialNotifications(notifications); // Update din ang initial state
           setPopupMessage({ isOpen: true, title: "Preferences Saved!", message: "Your notification settings have been successfully updated." });
         }, 500);
       }
@@ -356,7 +356,6 @@ export default function SettingsPage() {
 
               {/* Footer Action Buttons */}
               <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50 rounded-b-xl">
-                {/* 🟢 BAGO: Nilagyan ng onClick event at type="button" */}
                 <Button 
                   type="button" 
                   variant="outline" 
