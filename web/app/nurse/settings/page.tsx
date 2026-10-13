@@ -21,15 +21,6 @@ export default function SettingsPage() {
     schoolId: ""
   });
 
-  // State para i-store ang original profile data para sa Cancel button
-  const [initialProfile, setInitialProfile] = useState({
-    id: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    schoolId: ""
-  });
-
   // STATE PARA SA PASSWORD
   const [passwords, setPasswords] = useState({
     currentPassword: "",
@@ -39,13 +30,6 @@ export default function SettingsPage() {
 
   // STATE PARA SA NOTIFICATIONS
   const [notifications, setNotifications] = useState({
-    emergencyAlerts: true,
-    lowStock: true,
-    dailySummary: false
-  });
-
-  // State para i-store ang original notifications config
-  const [initialNotifications, setInitialNotifications] = useState({
     emergencyAlerts: true,
     lowStock: true,
     dailySummary: false
@@ -62,16 +46,13 @@ export default function SettingsPage() {
         const data = await res.json();
         
         if (res.ok && data.profile) {
-          const fetchedData = {
+          setProfile({
             id: data.profile.id,
             firstName: data.profile.firstName || "",
             lastName: data.profile.lastName || "",
             email: data.profile.email || "",
             schoolId: data.profile.schoolId || "PRC-PENDING"
-          };
-          
-          setProfile(fetchedData);
-          setInitialProfile(fetchedData); // I-save rin ang original data
+          });
         }
       } catch (err) {
         console.error("Failed to load profile", err);
@@ -82,17 +63,6 @@ export default function SettingsPage() {
 
     fetchProfile();
   }, []);
-
-  // Cancel Handler
-  const handleCancel = () => {
-    if (activeTab === "profile") {
-      setProfile(initialProfile); // Ibalik sa original fetched profile
-    } else if (activeTab === "security") {
-      setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" }); // I-clear ang passwords
-    } else if (activeTab === "notifications") {
-      setNotifications(initialNotifications); // Ibalik sa original settings
-    }
-  };
 
   // 2. MAIN SAVE HANDLER (Nagse-save sa database!)
   const handleSaveChanges = async () => {
@@ -108,7 +78,6 @@ export default function SettingsPage() {
         });
 
         if (res.ok) {
-          setInitialProfile(profile); // Update din ang initial state para kung mag-cancel ulit
           setPopupMessage({ isOpen: true, title: "Profile Updated!", message: "Your personal information has been successfully saved to the database." });
         }
       } 
@@ -134,7 +103,6 @@ export default function SettingsPage() {
 
       else if (activeTab === "notifications") {
         setTimeout(() => {
-          setInitialNotifications(notifications); // Update din ang initial state
           setPopupMessage({ isOpen: true, title: "Preferences Saved!", message: "Your notification settings have been successfully updated." });
         }, 500);
       }
@@ -356,14 +324,6 @@ export default function SettingsPage() {
 
               {/* Footer Action Buttons */}
               <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50 rounded-b-xl">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="text-slate-600 border-slate-200" 
-                  onClick={handleCancel}
-                >
-                  Cancel
-                </Button>
                 <Button onClick={handleSaveChanges} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 min-w-[140px]">
                   {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} 
                   {isSaving ? "Saving..." : "Save Changes"}
