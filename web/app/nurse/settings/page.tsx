@@ -18,7 +18,16 @@ export default function SettingsPage() {
     firstName: "",
     lastName: "",
     email: "",
-    schoolId: "" // Gagamitin natin as PRC/ID number
+    schoolId: ""
+  });
+
+  // 🟢 BAGO: State para i-store ang original profile data para sa Cancel button
+  const [initialProfile, setInitialProfile] = useState({
+    id: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    schoolId: ""
   });
 
   // STATE PARA SA PASSWORD
@@ -35,25 +44,34 @@ export default function SettingsPage() {
     dailySummary: false
   });
 
+  // 🟢 BAGO: State para i-store ang original notifications config
+  const [initialNotifications, setInitialNotifications] = useState({
+    emergencyAlerts: true,
+    lowStock: true,
+    dailySummary: false
+  });
+
   // 1. FETCH USER PROFILE MULA SA BACKEND
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();
         
         if (res.ok && data.profile) {
-          setProfile({
+          const fetchedData = {
             id: data.profile.id,
             firstName: data.profile.firstName || "",
             lastName: data.profile.lastName || "",
             email: data.profile.email || "",
             schoolId: data.profile.schoolId || "PRC-PENDING"
-          });
+          };
+          
+          setProfile(fetchedData);
+          setInitialProfile(fetchedData); // 🟢 BAGO: I-save rin ang original data
         }
       } catch (err) {
         console.error("Failed to load profile", err);
@@ -65,6 +83,17 @@ export default function SettingsPage() {
     fetchProfile();
   }, []);
 
+  // 🟢 BAGO: Cancel Handler
+  const handleCancel = () => {
+    if (activeTab === "profile") {
+      setProfile(initialProfile); // Ibalik sa original fetched profile
+    } else if (activeTab === "security") {
+      setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" }); // I-clear ang passwords
+    } else if (activeTab === "notifications") {
+      setNotifications(initialNotifications); // Ibalik sa original settings
+    }
+  };
+
   // 2. MAIN SAVE HANDLER (Nagse-save sa database!)
   const handleSaveChanges = async () => {
     setIsSaving(true);
@@ -72,8 +101,6 @@ export default function SettingsPage() {
 
     try {
       if (activeTab === "profile") {
-        // SAVE PROFILE API
-        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -81,19 +108,18 @@ export default function SettingsPage() {
         });
 
         if (res.ok) {
+          setInitialProfile(profile); // 🟢 BAGO: Update din ang initial state para kung mag-cancel ulit
           setPopupMessage({ isOpen: true, title: "Profile Updated!", message: "Your personal information has been successfully saved to the database." });
         }
       } 
       
       else if (activeTab === "security") {
-        // SAVE PASSWORD API
         if (passwords.newPassword !== passwords.confirmPassword) {
           alert("New passwords do not match!");
           setIsSaving(false);
           return;
         }
 
-        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/change-password`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -107,8 +133,8 @@ export default function SettingsPage() {
       }
 
       else if (activeTab === "notifications") {
-        // SAVE NOTIFICATIONS (Simulated muna for UI response)
         setTimeout(() => {
+          setInitialNotifications(notifications); // 🟢 BAGO: Update din ang initial state
           setPopupMessage({ isOpen: true, title: "Preferences Saved!", message: "Your notification settings have been successfully updated." });
         }, 500);
       }
@@ -330,7 +356,15 @@ export default function SettingsPage() {
 
               {/* Footer Action Buttons */}
               <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50 rounded-b-xl">
-                <Button variant="outline" className="text-slate-600 border-slate-200">Cancel</Button>
+                {/* 🟢 BAGO: Nilagyan ng onClick event at type="button" */}
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="text-slate-600 border-slate-200" 
+                  onClick={handleCancel}
+                >
+                  Cancel
+                </Button>
                 <Button onClick={handleSaveChanges} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 min-w-[140px]">
                   {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} 
                   {isSaving ? "Saving..." : "Save Changes"}
@@ -352,7 +386,6 @@ export default function SettingsPage() {
             <h3 className="text-xl font-bold text-slate-800 mb-2">{popupMessage.title}</h3>
             <p className="text-sm text-slate-500 mb-6 px-2">{popupMessage.message}</p>
             
-            {/* UPDATED BUTTON: Nagre-refresh na ang page para makuha ng Header ang bagong pangalan! */}
             <Button 
               onClick={() => {
                 setPopupMessage({ ...popupMessage, isOpen: false });
