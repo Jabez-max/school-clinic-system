@@ -39,7 +39,6 @@ export default function RegisterPage() {
     }
 
     try {
-      // 👇 BINAGO: Ginamit ang Environment Variable sa halip na localhost 👇
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,7 +104,7 @@ export default function RegisterPage() {
               <label className="text-sm font-bold text-slate-700">School ID</label>
               <div className="relative">
                 <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input required type="text" name="schoolId" value={formData.schoolId} onChange={handleChange} placeholder="e.g. 2024-12345" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" />
+                <input required type="text" name="schoolId" value={formData.schoolId} onChange={handleChange} placeholder="e.g. 2024-12345" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-slate-800 placeholder:text-slate-400" />
               </div>
             </div>
 
@@ -114,14 +113,14 @@ export default function RegisterPage() {
                 <label className="text-sm font-bold text-slate-700">First Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <input required type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Juan" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" />
+                  <input required type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Juan" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-slate-800 placeholder:text-slate-400" />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-bold text-slate-700">Last Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <input required type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Dela Cruz" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" />
+                  <input required type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Dela Cruz" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-slate-800 placeholder:text-slate-400" />
                 </div>
               </div>
             </div>
@@ -130,7 +129,7 @@ export default function RegisterPage() {
               <label className="text-sm font-bold text-slate-700">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="student@school.edu.ph" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" />
+                <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="student@school.edu.ph" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-slate-800 placeholder:text-slate-400" />
               </div>
             </div>
 
@@ -139,14 +138,14 @@ export default function RegisterPage() {
                 <label className="text-sm font-bold text-slate-700">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <input required type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" minLength={6} />
+                  <input required type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-slate-800 placeholder:text-slate-400" minLength={6} />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-bold text-slate-700">Confirm</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <input required type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" minLength={6} />
+                  <input required type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" className="w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-slate-800 placeholder:text-slate-400" minLength={6} />
                 </div>
               </div>
             </div>
