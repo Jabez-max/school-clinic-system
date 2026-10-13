@@ -217,7 +217,6 @@ router.post('/google', async (req: any, res: any): Promise<any> => {
     res.json({ message: 'Google login successful', token, role: user.role, user: { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role } });
 
   } catch (error: any) {
-    // 👇 IPINAPAKITA NA NGAYON ANG TOTOONG ERROR SA LOGS AT SA UI 👇
     console.error('\n[BACKEND] ❌ GOOGLE AUTH ERROR:', error);
     res.status(500).json({ error: `Google Auth Error: ${error.message}` });
   }
@@ -254,6 +253,27 @@ router.get('/me', verifyToken, async (req: any, res: any): Promise<any> => {
     res.json({ user });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// =====================================================================
+// 6. LOGOUT AUDIT LOG API (Tinatawag mula sa Vercel Frontend)
+// =====================================================================
+router.post('/logout-log', verifyToken, async (req: any, res: any): Promise<any> => {
+  try {
+    await prisma.auditLog.create({
+      data: {
+        action: "USER_LOGOUT",
+        entityType: "USER",
+        entityId: req.user.id,
+        performedBy: req.user.id,
+        details: "User logged out securely.",
+      }
+    });
+    res.status(200).json({ message: "Logout logged successfully" });
+  } catch (error) {
+    console.error('[BACKEND] ❌ Failed to log logout:', error);
+    res.status(500).json({ error: "Failed to log logout" });
   }
 });
 
