@@ -24,7 +24,6 @@ export default function AppointmentsPage() {
           return;
         }
 
-        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/student/appointments`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
@@ -112,19 +111,28 @@ export default function AppointmentsPage() {
         {appointments.length > 0 ? (
           appointments.map((apt) => {
             const statusDisplay = getStatusDisplay(apt.status);
+            
+            // 👇👇👇 TIMEZONE FIX AT DATE LOGIC 👇👇👇
+            // Kunin ang priority date (appointmentDate kung meron, else requestDate)
+            const rawDate = apt.appointmentDate ? apt.appointmentDate : apt.requestDate;
+            
+            // Tanggalin ang 'Z' sa dulo para basahin ng browser ang saktong oras nang walang +8 hours
+            const dateToDisplay = new Date(rawDate.replace('Z', ''));
+            // 👆👆👆 ============================== 👆👆👆
+
             return (
               <div key={apt.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 md:p-6 hover:shadow-md transition-all flex flex-col md:flex-row gap-5 items-start md:items-center">
                 
                 {/* Date Badge */}
                 <div className="flex-shrink-0 bg-slate-50 rounded-xl border border-slate-100 p-3 text-center min-w-[100px]">
                   <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                    {new Date(apt.requestDate).toLocaleDateString('en-US', { month: 'short' })}
+                    {dateToDisplay.toLocaleDateString('en-US', { month: 'short' })}
                   </p>
                   <p className="text-3xl font-black text-indigo-600">
-                    {new Date(apt.requestDate).toLocaleDateString('en-US', { day: '2-digit' })}
+                    {dateToDisplay.toLocaleDateString('en-US', { day: '2-digit' })}
                   </p>
                   <p className="text-xs font-medium text-slate-400 mt-1">
-                    {new Date(apt.requestDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    {dateToDisplay.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
 
