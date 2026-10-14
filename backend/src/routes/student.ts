@@ -53,8 +53,9 @@ const requireStudent = async (req: any, res: any, next: any) => {
       patient = await prisma.patient.create({
         data: {
           idNumber: user.schoolId,
-          firstName: user.firstName,
-          lastName: user.lastName,
+          // 👇 FIX: Nilagyan natin ng fallback para sa null values mula sa Google Login
+          firstName: user.firstName || "Unknown",
+          lastName: user.lastName || "Unknown",
           dateOfBirth: new Date('2000-01-01'), // Dummy fallback
           gender: 'OTHER', // Dummy fallback
           gradeLevel: 'TBD',
@@ -374,14 +375,14 @@ router.post('/profile-request', requireStudent, async (req: any, res: any) => {
       data: { userId: req.user.id, action: 'PROFILE_UPDATE_REQUEST', details: `Student requested a profile data update.` }
     }).catch((e: any) => console.error('AuditLog Error:', e));
 
-    // 👇 EMAIL NOTIFICATION SA ESTUDYANTE NA NATANGGAP ANG REQUEST 👇
+    // 👇 FIX: Nilagyan ng fallback 'Student' kung sakaling null ang name galing Google
     const time = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' });
     sendEmail(
-      req.user.email, // Automatic itong ise-send sa Google account/email na pinang-login nila
+      req.user.email,
       "📝 Profile Update Request Received",
       `<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
         <h2 style="color: #2563eb;">Request Submitted Successfully!</h2>
-        <p>Hello <b>${req.user.firstName}</b>,</p>
+        <p>Hello <b>${req.user.firstName || 'Student'}</b>,</p>
         <p>We have received your request to update your clinic profile on <b>${time}</b>.</p>
         <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 5px 0; color: #475569; font-size: 14px;"><b>Reason for update:</b> ${reason}</p>
@@ -422,8 +423,9 @@ router.get('/profile-requests', requireStudent, async (req: any, res: any) => {
 router.get('/profile', requireStudent, async (req: any, res: any) => {
   try {
     const profile = {
-      firstName: req.user.firstName,
-      lastName: req.user.lastName,
+      // 👇 FIX: Nilagyan ng fallback para hindi mag-error kapag null
+      firstName: req.user.firstName || "",
+      lastName: req.user.lastName || "",
       email: req.user.email,
       role: req.user.role,
       schoolId: req.user.schoolId,
