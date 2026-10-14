@@ -1,12 +1,11 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma'; 
 import jwt from 'jsonwebtoken'; 
-// 👇 IN-IMPORT NATIN ANG MAILER PARA SA ANNOUNCEMENTS AT PROFILE UPDATES 👇
-import { sendEmail } from '../utils/mailer';
+// 👇 BAGO: In-import na natin pati ang sendBatchEmails
+import { sendEmail, sendBatchEmails } from '../utils/mailer';
 
 const router = Router();
 
-// 👇 SINIGURADO NATIN NA TUGMA ITO SA .ENV MO (Lowercase)
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_clinic_key_2026';
 
 // =====================================================================
@@ -868,7 +867,7 @@ router.get('/announcements', async (req: any, res: any): Promise<any> => {
 });
 
 // =====================================================================
-// 37. ROUTE PARA MAG-CREATE NG BAGONG ANNOUNCEMENT 📧 (WITH EMAIL LOGIC)
+// 37. ROUTE PARA MAG-CREATE NG BAGONG ANNOUNCEMENT 📧 (WITH BATCH EMAIL)
 // =====================================================================
 router.post('/announcements', async (req: any, res: any): Promise<any> => {
   try {
@@ -884,11 +883,11 @@ router.post('/announcements', async (req: any, res: any): Promise<any> => {
       }
     });
 
-    // 👇 PANGKALAHATANG EMAIL SENDER LOGIC 👇
+    // 👇 BATCH EMAIL SENDER LOGIC 👇
     try {
       let userQuery: any = { isActive: true }; 
       
-      if (targetRole) {
+      if (targetRole && targetRole !== "All Students & Staff") {
         const roleStr = targetRole.toUpperCase();
         if (roleStr.includes('STUDENT')) userQuery.role = 'STUDENT';
         else if (roleStr.includes('TEACHER')) userQuery.role = 'HEAD_TEACHER';
@@ -899,8 +898,7 @@ router.post('/announcements', async (req: any, res: any): Promise<any> => {
         select: { email: true, firstName: true }
       });
 
-      // Tumatakbo ito sa background para hindi bumagal ang pag-save ni Nurse
-      targetUsers.forEach((user: any) => {
+      const emailJobs = targetUsers.map((user: any) => {
         const htmlContent = `
           <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
             <div style="background-color: #2563eb; color: white; padding: 15px; border-radius: 8px 8px 0 0; text-align: center;">
@@ -916,11 +914,26 @@ router.post('/announcements', async (req: any, res: any): Promise<any> => {
             </div>
           </div>
         `;
-        sendEmail(user.email, `📢 Clinic Announcement: ${title}`, htmlContent).catch((e: any) => console.error(e));
+        
+        return {
+          from: 'School Clinic Portal <noreply@clinnovate.site>', 
+          to: [user.email],
+          subject: `📢 Clinic Announcement: ${title}`,
+          html: htmlContent
+        };
       });
-      console.log(`[BACKEND] Announcement emails sent to ${targetUsers.length} users.`);
+
+      if (emailJobs.length > 0) {
+        const chunkSize = 100;
+        for (let i = 0; i < emailJobs.length; i += chunkSize) {
+          const chunk = emailJobs.slice(i, i + chunkSize);
+          sendBatchEmails(chunk);
+        }
+        console.log(`[BACKEND] Queued batch announcement emails for ${targetUsers.length} users.`);
+      }
+
     } catch (emailError) {
-      console.error("[BACKEND] Failed to send announcement emails:", emailError);
+      console.error("[BACKEND] Failed to send batch announcement emails:", emailError);
     }
 
     return res.status(201).json({ message: "Announcement created and emails sent!", announcement: newAnnouncement });
@@ -1117,7 +1130,7 @@ router.post('/clinic-requests', async (req: any, res: any): Promise<any> => {
       data: {
         patientId,
         reason,
-        status: status || 'APPROVED', // Default to APPROVED dahil Nurse ang nag-issue
+        status: status || 'APPROVED', 
         requestDate: new Date(),
       },
       include: { patient: true }
