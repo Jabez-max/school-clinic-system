@@ -67,8 +67,11 @@ model User {
   password       String?   // Ginawang optional
   googleId       String?   @unique // Bagong field para sa Google ID
   
-  firstName      String
-  lastName       String
+  // 👇 GINAWANG OPTIONAL (?) PARA HINDI MAG-ERROR SA MGA LUMANG ACCOUNTS 👇
+  firstName      String?
+  lastName       String?
+  // 👆 ============================================================== 👆
+
   role           Role      @default(NURSE)
   isActive       Boolean   @default(true) 
   
