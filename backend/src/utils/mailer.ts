@@ -1,19 +1,20 @@
 import nodemailer from 'nodemailer';
 
-// Kumukuha tayo ng credentials mula sa .env file para secure!
+// Gumagamit na tayo ng Resend SMTP server
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.resend.com',
+  secure: true,
+  port: 465,
   auth: {
-    user: process.env.CLINIC_EMAIL,
-    pass: process.env.CLINIC_EMAIL_APP_PASSWORD,
+    user: 'resend', // Laging 'resend' ang user dito
+    pass: process.env.RESEND_API_KEY, // Kukunin natin ito sa Resend dashboard
   }
 });
 
-// Ginawa nating sendEmail ang pangalan para tugma sa auth.ts
 export const sendEmail = async (to: string, subject: string, htmlContent: string) => {
   try {
     await transporter.sendMail({
-      from: `"School Clinic Portal" <${process.env.CLINIC_EMAIL}>`,
+      from: `"School Clinic Portal" <noreply@clinnovate.site>`, // Ito na ang bago mong custom domain!
       to,
       subject,
       html: htmlContent

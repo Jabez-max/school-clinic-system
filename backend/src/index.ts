@@ -22,7 +22,9 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'https://school-clinic-system.vercel.app',
-    /\.vercel\.app$/ // 👈 Pinapayagan nito ang LAHAT ng Vercel preview deployments
+    /\.vercel\.app$/, // 👈 Pinapayagan nito ang LAHAT ng Vercel preview deployments
+    'https://www.clinnovate.site', // 👈 BAGONG DOMAIN MO (may www)
+    'https://clinnovate.site'      // 👈 BAGONG DOMAIN MO (walang www)
   ],
   credentials: true
 }));
