@@ -9,8 +9,14 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get('clinic_session')?.value;
   const { pathname } = req.nextUrl;
 
-  // 👇 FIX: Dinagdag natin ang '/register' dito para hindi na siya harangin!
-  if (pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/api/auth') || pathname.startsWith('/_next')) {
+  // 👇 FIX: Dinagdag natin ang "pathname === '/'" para hindi harangin ang Landing Page!
+  if (
+    pathname === '/' || 
+    pathname.startsWith('/login') || 
+    pathname.startsWith('/register') || 
+    pathname.startsWith('/api/auth') || 
+    pathname.startsWith('/_next')
+  ) {
     return NextResponse.next();
   }
 
