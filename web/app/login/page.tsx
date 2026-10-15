@@ -13,41 +13,15 @@ export default function LoginPage() {
   const [isMounted, setIsMounted] = useState(false);
 
   // =================================================================
-  // ANTI-LOOP AUTO-REDIRECT (HARD RELOAD) 🛡️
+  // STRICT LOGIN: Awtomatikong ide-delete ang session kapag nasa login page
+  // para laging required mag-type ng username at password! 🛡️
   // =================================================================
   useEffect(() => {
     setIsMounted(true);
-    const token = localStorage.getItem("token");
-    const userStr = localStorage.getItem("user");
-
-    const verifySessionAndRedirect = async () => {
-      if (!token || !userStr) return;
-
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (res.ok) {
-          const user = JSON.parse(userStr);
-          const role = user.role?.toUpperCase();
-          
-          if (role === "ADMIN") window.location.href = "/admin/users"; // 👈 IDINAGDAG PARA SA ADMIN
-          else if (role === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
-          else if (role === "NURSE") window.location.href = "/nurse/dashboard";
-          else if (role === "STUDENT") window.location.href = "/student/dashboard";
-        } else {
-          throw new Error("Invalid session");
-        }
-      } catch (err) {
-        console.warn("Session rejected by server. Clearing storage to break loop.");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        document.cookie = "clinic_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      }
-    };
-
-    verifySessionAndRedirect();
+    // Burahin ang lumang token para hindi siya dumiretso sa dashboard
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    document.cookie = "clinic_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   }, []);
 
   // =================================================================
@@ -78,7 +52,7 @@ export default function LoginPage() {
 
         const userRole = (data.role || data.user?.role)?.toUpperCase();
 
-        if (userRole === "ADMIN") window.location.href = "/admin/users"; // 👈 IDINAGDAG PARA SA ADMIN
+        if (userRole === "ADMIN") window.location.href = "/admin/users"; 
         else if (userRole === "NURSE") window.location.href = "/nurse/dashboard";
         else if (userRole === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
         else if (userRole === "STUDENT") window.location.href = "/student/dashboard";
@@ -119,7 +93,7 @@ export default function LoginPage() {
 
         const userRole = (data.role || data.user?.role)?.toUpperCase();
 
-        if (userRole === "ADMIN") window.location.href = "/admin/users"; // 👈 IDINAGDAG PARA SA ADMIN
+        if (userRole === "ADMIN") window.location.href = "/admin/users"; 
         else if (userRole === "NURSE") window.location.href = "/nurse/dashboard";
         else if (userRole === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
         else if (userRole === "STUDENT") window.location.href = "/student/dashboard";
