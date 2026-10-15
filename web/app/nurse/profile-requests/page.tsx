@@ -1,18 +1,29 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Check, X, Clock, UserCog, Info } from "lucide-react";
+import { Check, X, Clock, UserCog, Info, AlertTriangle } from "lucide-react";
 
 export default function ProfileRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  // 👇 1. BAGONG STATE PARA SA TOAST NOTIFICATION
+  // States para sa Toast Notification
   const [toast, setToast] = useState<{ visible: boolean; message: string; type: "success" | "error" }>({
     visible: false,
     message: "",
     type: "success"
+  });
+
+  // 👇 MGA STATES PARA SA CUSTOM CONFIRMATION MODAL 👇
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    requestId: string | null;
+    actionType: "APPROVED" | "REJECTED" | null;
+  }>({
+    isOpen: false,
+    requestId: null,
+    actionType: null
   });
 
   useEffect(() => {
@@ -36,36 +47,48 @@ export default function ProfileRequestsPage() {
     }
   };
 
-  // 👇 2. FUNCTION PARA IPAGAMIT ANG TOAST
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ visible: true, message, type });
-    // Kusang mawawala after 3 seconds
     setTimeout(() => {
       setToast(prev => ({ ...prev, visible: false }));
     }, 3000);
   };
 
-  const handleAction = async (id: string, status: "APPROVED" | "REJECTED") => {
-    if (!confirm(`Are you sure you want to ${status.toLowerCase()} this request?`)) return;
+  // 👇 FUNCTION PARA BUKSAN ANG MODAL IMBES NA BROWSER CONFIRM() 👇
+  const openConfirmModal = (id: string, type: "APPROVED" | "REJECTED") => {
+    setConfirmModal({
+      isOpen: true,
+      requestId: id,
+      actionType: type
+    });
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal({ isOpen: false, requestId: null, actionType: null });
+  };
+
+  // 👇 ITO NA YUNG GAGAWA NG ACTION KAPAG PININDOT ANG "YES" SA MODAL 👇
+  const executeAction = async () => {
+    const { requestId, actionType } = confirmModal;
+    if (!requestId || !actionType) return;
     
-    setProcessingId(id);
+    closeConfirmModal(); // Isara agad ang modal
+    setProcessingId(requestId); // I-set ang loading state ng button
+    
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile-requests/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile-requests/${requestId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status: actionType })
       });
 
       if (res.ok) {
-        // Alisin ang na-process na request sa listahan
-        setRequests((prev) => prev.filter((req) => req.id !== id));
-        
-        // 👇 3. GINAMIT ANG TOAST IMBES NA ALERT()
-        showToast(`Request has been ${status.toLowerCase()} successfully.`);
+        setRequests((prev) => prev.filter((req) => req.id !== requestId));
+        showToast(`Request has been ${actionType.toLowerCase()} successfully.`);
       } else {
         const data = await res.json();
         showToast(data.error || "Failed to process request.", "error");
@@ -79,13 +102,46 @@ export default function ProfileRequestsPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6 relative">
+    <div className="p-6 max-w-6xl mx-auto space-y-6 relative text-slate-900">
       
-      {/* 👇 4. TOAST UI (Lalabas lang pag visible: true) */}
+      {/* Toast Notification */}
       {toast.visible && (
-        <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-lg shadow-xl text-sm font-bold text-white transition-all animate-in slide-in-from-top-5 duration-300 ${toast.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`}>
+        <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 px-5 py-3 rounded-lg shadow-xl text-sm font-bold text-white transition-all animate-in slide-in-from-top-5 duration-300 ${toast.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`}>
           {toast.type === 'success' ? <Check className="h-5 w-5" /> : <Info className="h-5 w-5" />}
           {toast.message}
+        </div>
+      )}
+
+      {/* 👇 CUSTOM CONFIRMATION MODAL 👇 */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden text-center p-6 animate-in zoom-in-95 duration-200 border border-slate-200">
+            <div className={`mx-auto w-12 h-12 flex items-center justify-center rounded-full mb-4 ${confirmModal.actionType === 'APPROVED' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+              {confirmModal.actionType === 'APPROVED' ? <Check className="h-6 w-6" /> : <AlertTriangle className="h-6 w-6" />}
+            </div>
+            
+            <h3 className="text-lg font-bold text-slate-800 mb-2">
+              Confirm {confirmModal.actionType === 'APPROVED' ? 'Approval' : 'Rejection'}
+            </h3>
+            <p className="text-sm text-slate-500 mb-6">
+              Are you sure you want to {confirmModal.actionType?.toLowerCase()} this profile update request? This action cannot be undone.
+            </p>
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={closeConfirmModal}
+                className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors border border-slate-200"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={executeAction}
+                className={`flex-1 px-4 py-2 text-white font-bold rounded-lg transition-colors shadow-sm ${confirmModal.actionType === 'APPROVED' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
+              >
+                Yes, {confirmModal.actionType === 'APPROVED' ? 'Approve' : 'Reject'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -158,14 +214,16 @@ export default function ProfileRequestsPage() {
                     <td className="px-6 py-4 align-top text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
-                          onClick={() => handleAction(req.id, "APPROVED")}
+                          // 👇 BINAGO: Tinatawag na ang openConfirmModal imbes na direktang handleAction 👇
+                          onClick={() => openConfirmModal(req.id, "APPROVED")}
                           disabled={processingId === req.id}
                           className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500 text-white rounded hover:bg-emerald-600 disabled:opacity-50 transition font-medium"
                         >
                           <Check className="h-4 w-4" /> Approve
                         </button>
                         <button
-                          onClick={() => handleAction(req.id, "REJECTED")}
+                          // 👇 BINAGO: Tinatawag na ang openConfirmModal imbes na direktang handleAction 👇
+                          onClick={() => openConfirmModal(req.id, "REJECTED")}
                           disabled={processingId === req.id}
                           className="flex items-center gap-1 px-3 py-1.5 bg-rose-50 text-rose-600 rounded hover:bg-rose-100 disabled:opacity-50 transition font-medium"
                         >
