@@ -1233,11 +1233,13 @@ router.put('/profile-requests/:id', async (req: any, res: any): Promise<any> => 
     }
 
     await prisma.$transaction(async (prismaTx) => {
+      // 1. I-update ang request status
       await prismaTx.profileUpdateRequest.update({
         where: { id },
         data: { status: 'APPROVED', reviewedById, reviewedAt: new Date() }
       });
       
+      // 2. I-update ang User table
       await prismaTx.user.update({
         where: { id: request.userId },
         data: {
@@ -1247,28 +1249,46 @@ router.put('/profile-requests/:id', async (req: any, res: any): Promise<any> => 
         }
       });
 
-      const patient = await prismaTx.patient.findFirst({ 
+      // 3. I-check kung may nag-e-exist na bang record sa Patient gamit ang BAGONG ID
+      const targetPatient = await prismaTx.patient.findFirst({
+        where: { idNumber: updatedSchoolId }
+      });
+
+      // 4. Hanapin ang LUMANG record (yung temporary account mula sa Google)
+      const currentPatient = await prismaTx.patient.findFirst({ 
         where: { idNumber: request.user.schoolId } 
       });
 
-      if (patient) {
+      if (targetPatient) {
+        // SCENARIO A: May existing Patient record na yung bagong ID (halimbawa, in-add na dati ng Nurse manually)
+        // I-u-update na lang natin ang details nito imbes na mag-create ng bago para iwas error!
         await prismaTx.patient.update({
-          where: { id: patient.id },
+          where: { id: targetPatient.id },
+          data: {
+            firstName: request.requestedFirstName || targetPatient.firstName || "",
+            lastName: request.requestedLastName || targetPatient.lastName || "",
+            gradeLevel: request.requestedGradeLevel || targetPatient.gradeLevel,
+            section: request.requestedSection || targetPatient.section
+          }
+        });
+      } else if (currentPatient) {
+        // SCENARIO B: Walang kaparehas na Patient record ang bagong ID, kaya pwede nating i-rename yung lumang record nang ligtas
+        await prismaTx.patient.update({
+          where: { id: currentPatient.id },
           data: {
             idNumber: updatedSchoolId, 
-            // Dinagdagan ng fallback || "" para hindi mag-error ang TypeScript 
-            firstName: request.requestedFirstName || patient.firstName || "",
-            lastName: request.requestedLastName || patient.lastName || "",
-            gradeLevel: request.requestedGradeLevel || patient.gradeLevel,
-            section: request.requestedSection || patient.section
+            firstName: request.requestedFirstName || currentPatient.firstName || "",
+            lastName: request.requestedLastName || currentPatient.lastName || "",
+            gradeLevel: request.requestedGradeLevel || currentPatient.gradeLevel,
+            section: request.requestedSection || currentPatient.section
           }
         });
       } else {
+        // SCENARIO C: Walang Patient record at all, kaya gagawa tayo ng bago
         await prismaTx.patient.create({
           data: {
             idNumber: updatedSchoolId,
             type: 'STUDENT',
-            // Dinagdagan ng fallback || "" para hindi mag-error ang TypeScript
             firstName: request.requestedFirstName || request.user.firstName || "",
             lastName: request.requestedLastName || request.user.lastName || "",
             gradeLevel: request.requestedGradeLevel || "TBD",
@@ -1293,9 +1313,10 @@ router.put('/profile-requests/:id', async (req: any, res: any): Promise<any> => 
 
     return res.json({ message: 'Profile update request approved and records updated successfully.' });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[BACKEND] Handle Profile Request Error:', error);
-    return res.status(500).json({ error: 'Failed to process profile request.' });
+    // 👇 IDINAGDAG: Ibabato natin ang specific na error message sa frontend para madaling ma-debug
+    return res.status(500).json({ error: error.message || 'Failed to process profile request.' });
   }
 });
 
