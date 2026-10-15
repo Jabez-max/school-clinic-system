@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 interface ProfileUpdateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // 👇 IDINAGDAG: Para ma-pre-fill natin ang form gamit ang current info nila
   currentProfile?: {
     firstName?: string;
     lastName?: string;
@@ -28,7 +27,6 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
 
-  // 👇 IDINAGDAG: Awtomatikong ilalagay ang current data nila kapag bumukas ang modal
   useEffect(() => {
     if (isOpen) {
       setFormData({
@@ -37,7 +35,7 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
         requestedSchoolId: currentProfile?.schoolId || "",
         requestedGradeLevel: currentProfile?.gradeLevel || "",
         requestedSection: currentProfile?.section || "",
-        reason: "" // Laging blangko ang reason sa simula
+        reason: "" 
       });
       setMessage(null);
     }
@@ -52,7 +50,9 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/student/profile-request", {
+      // 👇 INAYOS: Ginamit ang NEXT_PUBLIC_API_URL para sa live server
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${baseUrl}/api/student/profile-request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +69,6 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
 
       setMessage({ type: "success", text: "Request submitted! Please wait for the clinic to approve it." });
       
-      // I-clear ang form at isara ang modal pagkatapos ng 2.5 segundo
       setTimeout(() => {
         onClose();
         setMessage(null);
@@ -83,17 +82,14 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
   };
 
   return (
-    // 👇 DITO YUNG FIX: Ginawang z-[9999], bg-black/60, at nilagyan ng backdrop-blur-sm 👇
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
         
-        {/* Modal Header */}
         <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
           <h2 className="text-lg font-bold text-slate-800">Request Profile Update</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 font-bold text-xl transition-colors">&times;</button>
         </div>
 
-        {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           
           {message && (
@@ -109,11 +105,12 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">First Name</label>
+              {/* 👇 INAYOS: Idinagdag ang text-slate-900 para dark gray ang text palagi */}
               <input 
                 type="text" 
                 value={formData.requestedFirstName} 
                 onChange={(e) => setFormData({...formData, requestedFirstName: e.target.value})}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all" 
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all text-slate-900 placeholder-slate-400" 
                 placeholder="New First Name" 
               />
             </div>
@@ -123,7 +120,7 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
                 type="text" 
                 value={formData.requestedLastName} 
                 onChange={(e) => setFormData({...formData, requestedLastName: e.target.value})}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all" 
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all text-slate-900 placeholder-slate-400" 
                 placeholder="New Last Name" 
               />
             </div>
@@ -135,7 +132,7 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
               type="text" 
               value={formData.requestedSchoolId} 
               onChange={(e) => setFormData({...formData, requestedSchoolId: e.target.value})}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all" 
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all text-slate-900 placeholder-slate-400" 
               placeholder="e.g., 2026-01234" 
             />
           </div>
@@ -147,7 +144,7 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
                 type="text" 
                 value={formData.requestedGradeLevel} 
                 onChange={(e) => setFormData({...formData, requestedGradeLevel: e.target.value})}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all" 
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all text-slate-900 placeholder-slate-400" 
                 placeholder="e.g., Grade 12" 
               />
             </div>
@@ -157,7 +154,7 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
                 type="text" 
                 value={formData.requestedSection} 
                 onChange={(e) => setFormData({...formData, requestedSection: e.target.value})}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all" 
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all text-slate-900 placeholder-slate-400" 
                 placeholder="e.g., STEM-A" 
               />
             </div>
@@ -169,13 +166,12 @@ export default function ProfileUpdateModal({ isOpen, onClose, currentProfile }: 
               required
               value={formData.reason} 
               onChange={(e) => setFormData({...formData, reason: e.target.value})}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all resize-none" 
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all resize-none text-slate-900 placeholder-slate-400" 
               placeholder="Bakit mo gustong palitan ang profile mo? (e.g., Mali po ang nakuha ng Google)" 
               rows={3}
             ></textarea>
           </div>
 
-          {/* Modal Footer */}
           <div className="pt-4 flex justify-end gap-3">
             <button 
               type="button" 
