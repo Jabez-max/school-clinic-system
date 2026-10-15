@@ -1,12 +1,19 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Check, X, Clock, UserCog } from "lucide-react";
+import { Check, X, Clock, UserCog, Info } from "lucide-react";
 
 export default function ProfileRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+
+  // 👇 1. BAGONG STATE PARA SA TOAST NOTIFICATION
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: "success" | "error" }>({
+    visible: false,
+    message: "",
+    type: "success"
+  });
 
   useEffect(() => {
     fetchRequests();
@@ -15,7 +22,6 @@ export default function ProfileRequestsPage() {
   const fetchRequests = async () => {
     try {
       const token = localStorage.getItem("token");
-      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile-requests`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -30,13 +36,21 @@ export default function ProfileRequestsPage() {
     }
   };
 
+  // 👇 2. FUNCTION PARA IPAGAMIT ANG TOAST
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ visible: true, message, type });
+    // Kusang mawawala after 3 seconds
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 3000);
+  };
+
   const handleAction = async (id: string, status: "APPROVED" | "REJECTED") => {
     if (!confirm(`Are you sure you want to ${status.toLowerCase()} this request?`)) return;
     
     setProcessingId(id);
     try {
       const token = localStorage.getItem("token");
-      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/profile-requests/${id}`, {
         method: "PUT",
         headers: {
@@ -49,22 +63,32 @@ export default function ProfileRequestsPage() {
       if (res.ok) {
         // Alisin ang na-process na request sa listahan
         setRequests((prev) => prev.filter((req) => req.id !== id));
-        alert(`Request has been ${status.toLowerCase()} successfully.`);
+        
+        // 👇 3. GINAMIT ANG TOAST IMBES NA ALERT()
+        showToast(`Request has been ${status.toLowerCase()} successfully.`);
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to process request.");
+        showToast(data.error || "Failed to process request.", "error");
       }
     } catch (error) {
       console.error("Error processing request:", error);
-      alert("An error occurred.");
+      showToast("An error occurred while processing.", "error");
     } finally {
       setProcessingId(null);
     }
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-6 max-w-6xl mx-auto space-y-6 relative">
       
+      {/* 👇 4. TOAST UI (Lalabas lang pag visible: true) */}
+      {toast.visible && (
+        <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-lg shadow-xl text-sm font-bold text-white transition-all animate-in slide-in-from-top-5 duration-300 ${toast.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`}>
+          {toast.type === 'success' ? <Check className="h-5 w-5" /> : <Info className="h-5 w-5" />}
+          {toast.message}
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
