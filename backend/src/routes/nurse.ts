@@ -1205,7 +1205,6 @@ router.put('/profile-requests/:id', async (req: any, res: any): Promise<any> => 
         data: { status: 'REJECTED', reviewedById, reviewedAt: new Date() }
       });
       
-      // 📧 Send Rejection Email
       sendEmail(
         request.user.email,
         "❌ Profile Update Request Status",
@@ -1221,13 +1220,23 @@ router.put('/profile-requests/:id', async (req: any, res: any): Promise<any> => 
     }
 
     // 👇 KUNG APPROVED 👇
+    const updatedSchoolId = request.requestedSchoolId || request.user.schoolId;
+
+    if (request.requestedSchoolId && request.requestedSchoolId !== request.user.schoolId) {
+      const existingUserWithNewId = await prisma.user.findFirst({
+        where: { schoolId: updatedSchoolId, id: { not: request.userId } }
+      });
+
+      if (existingUserWithNewId) {
+        return res.status(400).json({ error: "The requested School ID is already being used by another account." });
+      }
+    }
+
     await prisma.$transaction(async (prismaTx) => {
       await prismaTx.profileUpdateRequest.update({
         where: { id },
         data: { status: 'APPROVED', reviewedById, reviewedAt: new Date() }
       });
-
-      const updatedSchoolId = request.requestedSchoolId || request.user.schoolId;
       
       await prismaTx.user.update({
         where: { id: request.userId },
@@ -1238,23 +1247,39 @@ router.put('/profile-requests/:id', async (req: any, res: any): Promise<any> => 
         }
       });
 
-      const patient = await prismaTx.patient.findUnique({ where: { idNumber: request.user.schoolId } });
+      const patient = await prismaTx.patient.findFirst({ 
+        where: { idNumber: request.user.schoolId } 
+      });
 
       if (patient) {
         await prismaTx.patient.update({
           where: { id: patient.id },
           data: {
             idNumber: updatedSchoolId, 
-            firstName: request.requestedFirstName || patient.firstName,
-            lastName: request.requestedLastName || patient.lastName,
+            // Dinagdagan ng fallback || "" para hindi mag-error ang TypeScript 
+            firstName: request.requestedFirstName || patient.firstName || "",
+            lastName: request.requestedLastName || patient.lastName || "",
             gradeLevel: request.requestedGradeLevel || patient.gradeLevel,
             section: request.requestedSection || patient.section
+          }
+        });
+      } else {
+        await prismaTx.patient.create({
+          data: {
+            idNumber: updatedSchoolId,
+            type: 'STUDENT',
+            // Dinagdagan ng fallback || "" para hindi mag-error ang TypeScript
+            firstName: request.requestedFirstName || request.user.firstName || "",
+            lastName: request.requestedLastName || request.user.lastName || "",
+            gradeLevel: request.requestedGradeLevel || "TBD",
+            section: request.requestedSection || "TBD",
+            gender: "NOT SPECIFIED",
+            clearanceStatus: "CLEARED"
           }
         });
       }
     });
 
-    // 📧 Send Approval Email
     sendEmail(
       request.user.email,
       "✅ Profile Update Request Approved",
