@@ -1,5 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs'; // Ginagamit para i-encrypt ang password ng bagong user
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -25,6 +26,39 @@ router.get('/users', async (req, res) => {
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// POST /api/admin/users - Gagawa ng bagong user galing sa Admin Modal
+router.post('/users', async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, schoolId, role } = req.body;
+
+    // 1. I-check kung ginagamit na ang email na ito
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email is already registered" });
+    }
+
+    // 2. I-encrypt (hash) ang password bago i-save sa database para secure
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 3. I-save ang bagong user sa Prisma database
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        schoolId,
+        role: role || 'STUDENT'
+      }
+    });
+
+    res.status(201).json({ message: "User created successfully", user: newUser });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: "Failed to create user" });
   }
 });
 
