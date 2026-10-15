@@ -62,4 +62,38 @@ router.post('/users', async (req, res) => {
   }
 });
 
+// PUT /api/admin/users/:id/role - I-uupdate ang role ng user (Edit Role)
+router.put('/users/:id/role', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: { role }
+    });
+
+    res.json({ message: "Role updated successfully", user: updatedUser });
+  } catch (error) {
+    console.error("Error updating role:", error);
+    res.status(500).json({ error: "Failed to update role" });
+  }
+});
+
+// DELETE /api/admin/users/:id - Buburahin ang user
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
 export default router;
