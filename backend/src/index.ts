@@ -9,7 +9,8 @@ import headTeacherRoutes from './routes/headTeacher';
 import nurseRoutes from './routes/nurse';
 import studentRoutes from './routes/student'; 
 import studentsRoutes from './routes/students';
-import clinicVisitsRoutes from './routes/clinicVisits'; // 👈 1. IDINAGDAG ANG CLINIC VISITS ROUTER
+import clinicVisitsRoutes from './routes/clinicVisits'; 
+import adminRoutes from './routes/admin'; // 👈 1. IDINAGDAG: Admin Router para sa User Management
 
 // I-load ang .env variables
 dotenv.config();
@@ -22,9 +23,9 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'https://school-clinic-system.vercel.app',
-    /\.vercel\.app$/, // 👈 Pinapayagan nito ang LAHAT ng Vercel preview deployments
-    'https://www.clinnovate.site', // 👈 BAGONG DOMAIN MO (may www)
-    'https://clinnovate.site'      // 👈 BAGONG DOMAIN MO (walang www)
+    /\.vercel\.app$/, // Pinapayagan nito ang LAHAT ng Vercel preview deployments
+    'https://www.clinnovate.site', // BAGONG DOMAIN MO (may www)
+    'https://clinnovate.site'      // BAGONG DOMAIN MO (walang www)
   ],
   credentials: true
 }));
@@ -36,7 +37,8 @@ app.use('/api/head-teacher', headTeacherRoutes); // Para sa Head Teacher
 app.use('/api/nurse', nurseRoutes); // Para sa Nurse
 app.use('/api/student', studentRoutes); // Para sa Student Dashboard
 app.use('/api/students', studentsRoutes); // Para sa Student Management Directory
-app.use('/api/clinic-visits', clinicVisitsRoutes); // 👈 2. IDINAGDAG DITO PARA MABASA NG FRONTEND ANG API
+app.use('/api/clinic-visits', clinicVisitsRoutes); // Para sa Clinic Visits
+app.use('/api/admin', adminRoutes); // 👈 2. IDINAGDAG: Dito papasok ang /api/admin/users
 
 // Test Route
 app.get('/api/health', (req, res) => {
