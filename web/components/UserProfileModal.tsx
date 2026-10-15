@@ -33,25 +33,33 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      // DYNAMIC ENDPOINT: Depende sa role kung saang backend route kukuha
-      let endpoint = "http://localhost:5000/api/nurse/profile"; 
+      // 👇 INAYOS: Ginamit na natin ang Vercel/Render API URL imbes na localhost
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      let endpoint = `${baseUrl}/api/nurse/profile`; 
       
       if (role === "HEAD_TEACHER") {
-        endpoint = "http://localhost:5000/api/head-teacher/settings";
+        endpoint = `${baseUrl}/api/head-teacher/settings`;
       } else if (role === "STUDENT") {
-        endpoint = "http://localhost:5000/api/student/profile"; // 👇 Idinagdag para sa Student
+        endpoint = `${baseUrl}/api/student/profile`;
       }
 
       const res = await fetch(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const json = await res.json();
-      if (res.ok) setProfile(json.profile);
+      if (res.ok) setProfile(json.profile || json.user || json); // Pinasimple para kahit ano ireturn ng backend, makuha niya
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // 👇 SAFETY CHECK: Kumuha ng tamang initial mula sa profile
+  const getInitial = () => {
+    if (profile && profile.firstName) return profile.firstName.charAt(0).toUpperCase();
+    if (profile && profile.name) return profile.name.charAt(0).toUpperCase(); // Para minsan name ang binabato
+    return "U";
   };
 
   if (!isOpen) return null;
@@ -78,10 +86,11 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
             <div className="flex justify-between items-end -mt-10 mb-4">
               <div className="h-20 w-20 bg-white rounded-full p-1 shadow-md">
                 <div className="h-full w-full bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold">
-                  {profile ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}` : "U"}
+                  {/* 👇 Ginamit ang ligtas na function para sa Initial */}
+                  {getInitial()}
                 </div>
               </div>
-              {profile?.isActive && (
+              {profile && (
                 <div className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[10px] uppercase tracking-wider rounded-full border border-emerald-200 mb-2">
                   <BadgeCheck className="h-3 w-3" /> Active
                 </div>
@@ -101,9 +110,11 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                 
                 {/* Name & Role */}
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">{profile.firstName} {profile.lastName}</h2>
+                  <h2 className="text-xl font-bold text-slate-900">
+                    {profile.firstName ? `${profile.firstName} ${profile.lastName || ''}` : (profile.name || 'Student')}
+                  </h2>
                   <p className="text-slate-500 text-sm font-medium capitalize mt-0.5">
-                    {profile.role?.replace('_', ' ').toLowerCase()}
+                    {(profile.role || role || 'STUDENT').replace('_', ' ').toLowerCase()}
                   </p>
                 </div>
 
@@ -120,7 +131,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                   </div>
 
                   {/* DYNAMIC DETAILS: Depende sa Role */}
-                  {profile.role === 'HEAD_TEACHER' ? (
+                  {role === 'HEAD_TEACHER' ? (
                     <div className="flex items-center gap-3 p-3 bg-emerald-50/50 rounded-xl border border-emerald-100">
                       <div className="p-2 bg-white rounded-lg shadow-sm text-emerald-500">
                         <BookOpen className="h-4 w-4" />
@@ -134,7 +145,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                         </p>
                       </div>
                     </div>
-                  ) : profile.role === 'STUDENT' ? (
+                  ) : role === 'STUDENT' ? (
                     <div className="flex items-center gap-3 p-3 bg-indigo-50/50 rounded-xl border border-indigo-100">
                       <div className="p-2 bg-white rounded-lg shadow-sm text-indigo-500">
                         <IdCard className="h-4 w-4" />
@@ -142,7 +153,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                       <div>
                         <p className="text-[10px] font-bold text-indigo-600/70 uppercase tracking-wider">Student ID & Section</p>
                         <p className="text-sm font-bold text-indigo-800">
-                          {profile.schoolId || "TBD"} • {profile.gradeLevel || "TBD"} - {profile.section || "TBD"}
+                          {profile.schoolId || "TBD"} - {profile.gradeLevel || "TBD"} {profile.section || "TBD"}
                         </p>
                       </div>
                     </div>
@@ -162,7 +173,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                 </div>
 
                 {/* 👇 BAGONG SECTION: Lalabas lamang kapag STUDENT ang naka-login */}
-                {profile.role === 'STUDENT' && (
+                {role === 'STUDENT' && (
                   <button 
                     onClick={() => setIsUpdateModalOpen(true)}
                     className="w-full flex items-center justify-center gap-2 mt-2 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg border border-blue-200 transition-colors"
@@ -180,7 +191,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
 
               </div>
             ) : (
-              <p className="text-center text-slate-500 text-sm">Failed to load profile.</p>
+              <p className="text-center text-slate-500 text-sm py-4">Failed to load profile. Please try reloading the page.</p>
             )}
           </div>
         </div>
