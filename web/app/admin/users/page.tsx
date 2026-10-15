@@ -9,11 +9,9 @@ export default function UserManagement() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Palitan ang URL kung naka-host na sa Render ang backend mo
         const response = await fetch('http://localhost:5000/api/admin/users', {
           headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${localStorage.getItem('token')}` // I-uncomment kung may token ka na
           }
         });
         const data = await response.json();
@@ -30,16 +28,41 @@ export default function UserManagement() {
     fetchUsers();
   }, []);
 
+  // 👇 FUNCTION PARA SA LOGOUT
+  const handleLogout = () => {
+    // Burahin ang saved tokens sa browser
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    document.cookie = "clinic_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    
+    // Ibalik sa login page
+    window.location.href = "/login";
+  };
+
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
-            + Add New User
-          </button>
+        
+        {/* HEADER SECTION WITH LOGOUT BUTTON */}
+        <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
+            <p className="text-sm text-gray-500">Administrator Dashboard</p>
+          </div>
+          <div className="flex gap-4">
+            <button className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition font-medium">
+              + Add New User
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="bg-red-100 text-red-600 px-4 py-2 rounded shadow hover:bg-red-200 transition font-medium border border-red-200"
+            >
+              Logout
+            </button>
+          </div>
         </div>
         
+        {/* TABLE SECTION */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
@@ -80,15 +103,16 @@ export default function UserManagement() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-blue-600 hover:text-blue-900 mr-4 font-semibold">Edit Role</button>
-                    <button className="text-red-600 hover:text-red-900 font-semibold">Delete</button>
-                </td>
+                      <button className="text-blue-600 hover:text-blue-900 mr-4 font-semibold">Edit Role</button>
+                      <button className="text-red-600 hover:text-red-900 font-semibold">Delete</button>
+                    </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
+
       </div>
     </div>
   );
