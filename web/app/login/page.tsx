@@ -32,7 +32,8 @@ export default function LoginPage() {
           const user = JSON.parse(userStr);
           const role = user.role?.toUpperCase();
           
-          if (role === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
+          if (role === "ADMIN") window.location.href = "/admin/users"; // 👈 IDINAGDAG PARA SA ADMIN
+          else if (role === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
           else if (role === "NURSE") window.location.href = "/nurse/dashboard";
           else if (role === "STUDENT") window.location.href = "/student/dashboard";
         } else {
@@ -77,7 +78,8 @@ export default function LoginPage() {
 
         const userRole = (data.role || data.user?.role)?.toUpperCase();
 
-        if (userRole === "NURSE") window.location.href = "/nurse/dashboard";
+        if (userRole === "ADMIN") window.location.href = "/admin/users"; // 👈 IDINAGDAG PARA SA ADMIN
+        else if (userRole === "NURSE") window.location.href = "/nurse/dashboard";
         else if (userRole === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
         else if (userRole === "STUDENT") window.location.href = "/student/dashboard";
         else throw new Error("Login successful, but role is invalid or missing.");
@@ -117,7 +119,8 @@ export default function LoginPage() {
 
         const userRole = (data.role || data.user?.role)?.toUpperCase();
 
-        if (userRole === "NURSE") window.location.href = "/nurse/dashboard";
+        if (userRole === "ADMIN") window.location.href = "/admin/users"; // 👈 IDINAGDAG PARA SA ADMIN
+        else if (userRole === "NURSE") window.location.href = "/nurse/dashboard";
         else if (userRole === "HEAD_TEACHER") window.location.href = "/head-teacher/dashboard";
         else if (userRole === "STUDENT") window.location.href = "/student/dashboard";
         else window.location.href = "/student/dashboard"; 
