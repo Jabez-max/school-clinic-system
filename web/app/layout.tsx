@@ -10,6 +10,8 @@ import { cn } from "../lib/utils";
 
 // 👇 BAGONG IMPORT PARA SA DARK MODE 👇
 import { ThemeProvider } from "../components/ThemeProvider";
+// 👇 1. IDINAGDAG: Import para sa Auto-Logout timer 👇
+import AutoLogout from "../components/AutoLogout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +30,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       {/* DINAGDAG ANG dark:bg-slate-900 PARA SA DARK BACKGROUND */}
       <body className={cn("min-h-screen bg-slate-50 dark:bg-slate-900 font-sans antialiased", inter.className)}>
+        
+        {/* 👇 2. IDINAGDAG: Ito ang magmamasid kung inactive ang user 👇 */}
+        <AutoLogout />
         
         <GoogleOAuthProvider clientId="870089993580-tqc0kbjjptnec9tnhpidrf83rv5ob3vf.apps.googleusercontent.com">
           
