@@ -164,7 +164,8 @@ router.get('/health', requireStudent, async (req: any, res: any) => {
         idNumber: req.patient.idNumber,
         dateOfBirth: req.patient.dateOfBirth,
         gender: req.patient.gender,
-        emergencyContactName: req.patient.emergencyContactName,
+        // 👇 INAYOS NA FIELD NAMES 👇
+        emergencyContactPerson: req.patient.emergencyContactPerson,
         emergencyContactNumber: req.patient.emergencyContactNumber,
       },
       healthRecord: healthRecord || {
