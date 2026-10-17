@@ -24,7 +24,6 @@ export default function MyHealthPage() {
           return;
         }
 
-        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/student/health`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
@@ -76,6 +75,16 @@ export default function MyHealthPage() {
     ? (healthRecord.weight / Math.pow(healthRecord.height / 100, 2)).toFixed(1) 
     : "N/A";
 
+  // 👇 INAYOS NA BIRTHDATE FORMATTER 👇
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Not set";
+    return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-12 max-w-5xl mx-auto">
       
@@ -87,12 +96,12 @@ export default function MyHealthPage() {
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">My Health Record</h1>
-            <p className="text-slate-500 mt-1 text-sm md:text-base">Confidential Medical Profile • {patient.idNumber}</p>
+            <p className="text-slate-500 mt-1 text-sm md:text-base">Confidential Medical Profile • {patient?.idNumber}</p>
           </div>
         </div>
         <div className="relative z-10 w-full md:w-auto">
-          <Badge className={`px-4 py-2 text-sm font-bold tracking-wider uppercase ${healthRecord.conditionStatus === 'HEALTHY' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-            Status: {healthRecord.conditionStatus || "ACTIVE"}
+          <Badge className={`px-4 py-2 text-sm font-bold tracking-wider uppercase ${healthRecord?.conditionStatus === 'HEALTHY' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+            Status: {healthRecord?.conditionStatus || "ACTIVE"}
           </Badge>
         </div>
         {/* Decorative background element */}
@@ -111,12 +120,12 @@ export default function MyHealthPage() {
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
                 <Scale className="h-6 w-6 mx-auto text-blue-500 mb-2" />
                 <p className="text-xs text-slate-500 font-medium">Weight</p>
-                <p className="text-lg font-bold text-slate-800">{healthRecord.weight ? `${healthRecord.weight} kg` : '--'}</p>
+                <p className="text-lg font-bold text-slate-800">{healthRecord?.weight ? `${healthRecord.weight} kg` : '--'}</p>
               </div>
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
                 <Ruler className="h-6 w-6 mx-auto text-emerald-500 mb-2" />
                 <p className="text-xs text-slate-500 font-medium">Height</p>
-                <p className="text-lg font-bold text-slate-800">{healthRecord.height ? `${healthRecord.height} cm` : '--'}</p>
+                <p className="text-lg font-bold text-slate-800">{healthRecord?.height ? `${healthRecord.height} cm` : '--'}</p>
               </div>
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center col-span-2">
                 <p className="text-xs text-slate-500 font-medium mb-1">Body Mass Index (BMI)</p>
@@ -136,12 +145,13 @@ export default function MyHealthPage() {
               <div className="flex justify-between items-center border-b border-slate-100 pb-3">
                 <span className="text-sm text-slate-500 flex items-center"><Calendar className="h-4 w-4 mr-2" /> Birthdate</span>
                 <span className="text-sm font-bold text-slate-800">
-                  {patient.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString() : 'Not set'}
+                  {/* 👇 GINAMIT ANG BAGONG FORMATTER 👇 */}
+                  {formatDate(patient?.dateOfBirth)}
                 </span>
               </div>
               <div className="flex justify-between items-center border-b border-slate-100 pb-3">
                 <span className="text-sm text-slate-500 flex items-center"><User className="h-4 w-4 mr-2" /> Gender</span>
-                <span className="text-sm font-bold text-slate-800">{patient.gender || 'Not set'}</span>
+                <span className="text-sm font-bold text-slate-800">{patient?.gender || 'Not set'}</span>
               </div>
             </div>
           </div>
@@ -161,7 +171,7 @@ export default function MyHealthPage() {
                   <Droplet className="h-5 w-5 text-rose-600" />
                   <p className="text-sm font-bold text-rose-900">Blood Type</p>
                 </div>
-                <p className="text-2xl font-black text-rose-700 ml-7">{healthRecord.bloodType || 'N/A'}</p>
+                <p className="text-2xl font-black text-rose-700 ml-7">{healthRecord?.bloodType || 'N/A'}</p>
               </div>
 
               <div className="bg-amber-50 p-4 rounded-xl border border-amber-100">
@@ -169,12 +179,12 @@ export default function MyHealthPage() {
                   <AlertTriangle className="h-5 w-5 text-amber-600" />
                   <p className="text-sm font-bold text-amber-900">Known Allergies</p>
                 </div>
-                <p className="text-base font-semibold text-amber-800 ml-7">{healthRecord.allergies || 'None Recorded'}</p>
+                <p className="text-base font-semibold text-amber-800 ml-7">{healthRecord?.allergies || 'None Recorded'}</p>
               </div>
 
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 sm:col-span-2 mt-2">
                 <p className="text-sm font-bold text-slate-700 mb-2">Pre-existing Medical Conditions</p>
-                <p className="text-sm text-slate-600">{healthRecord.medicalConditions || 'No pre-existing conditions reported.'}</p>
+                <p className="text-sm text-slate-600">{healthRecord?.medicalConditions || 'No pre-existing conditions reported.'}</p>
               </div>
             </div>
           </div>
@@ -186,11 +196,12 @@ export default function MyHealthPage() {
             <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
               <div>
                 <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Contact Person</p>
-                <p className="text-base font-bold text-slate-800">{patient.emergencyContactName || 'Not Provided'}</p>
+                {/* 👇 BINAGO ANG VARIABLE NAME 👇 */}
+                <p className="text-base font-bold text-slate-800">{patient?.emergencyContactPerson || 'Not Provided'}</p>
               </div>
               <div className="sm:text-right">
                 <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Contact Number</p>
-                <p className="text-base font-bold text-slate-800">{patient.emergencyContactNumber || 'Not Provided'}</p>
+                <p className="text-base font-bold text-slate-800">{patient?.emergencyContactNumber || 'Not Provided'}</p>
               </div>
             </div>
             <p className="text-xs text-slate-400 mt-4 text-center">
