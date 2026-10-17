@@ -101,24 +101,33 @@ export default function UserManagement() {
     }
   };
 
-  // --- DELETE USER FUNCTION ---
+  // --- DELETE USER FUNCTION (OPTIMISTIC UPDATE APPLIED) ---
   const handleDeleteUser = async (id: string, name: string) => {
     if (!window.confirm(`Are you sure you want to completely delete ${name}? This action cannot be undone.`)) {
       return;
     }
 
+    // 1. I-save ang current state bago burahin (para may backup kung mag-error ang server)
+    const previousUsers = [...users];
+
+    // 2. OPTIMISTIC UPDATE: Tanggalin agad sa screen/UI para walang delay
+    setUsers(users.filter(user => user.id !== id));
+
     try {
+      // 3. I-send ang request sa server sa background
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users/${id}`, {
         method: 'DELETE',
       });
 
-      if (res.ok) {
-        fetchUsers(); // I-refresh ang table pagkatapos mag-delete
-      } else {
-        alert("Failed to delete user");
+      if (!res.ok) {
+        throw new Error("Failed to delete user on the server");
       }
+      // Wala nang fetchUsers() dito dahil tinanggal na natin sa screen agad sa Step 2
     } catch (error) {
       console.error(error);
+      alert("May error sa pag-delete. Ibabalik ang data.");
+      // 4. Kung nag-error ang Railway, ibalik ang user sa listahan gamit ang backup
+      setUsers(previousUsers);
     }
   };
 
@@ -181,7 +190,6 @@ export default function UserManagement() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {/* 👇 PINA-FUNCTION NA ANG MGA BUTTONS */}
                       <button 
                         onClick={() => openEditModal(user)} 
                         className="text-blue-600 hover:text-blue-900 mr-4 font-bold bg-blue-50 px-3 py-1 rounded transition"
