@@ -2,14 +2,21 @@ import {
   LayoutDashboard, Users, Activity, Calendar, Stethoscope, 
   FileText, History, Pill, Package, AlertTriangle, 
   BarChart3, Megaphone, ShieldAlert, Settings, User, 
-  Bell, FileQuestion, HeartPulse, FileCheck, UserCog // 👈 IDINAGDAG ANG UserCog DITO!
+  Bell, FileQuestion, HeartPulse, FileCheck, UserCog 
 } from "lucide-react";
+
+// 👇 BAGONG DAGDAG PARA SA ADMIN MENU 👇
+export const ADMIN_NAV = [
+  { title: "User Management", href: "/admin/users", icon: Users },
+  { title: "Audit Logs", href: "/admin/audit-logs", icon: ShieldAlert },
+];
+// 👆 =================================== 👆
 
 export const NURSE_NAV = [
   { title: "Dashboard", href: "/nurse/dashboard", icon: LayoutDashboard },
   { title: "Students", href: "/nurse/students", icon: Users },
   
-  // 👇 BAGONG DAGDAG PARA SA STUDENT PROFILE REQUESTS:
+  // BAGONG DAGDAG PARA SA STUDENT PROFILE REQUESTS:
   { title: "Profile Requests", href: "/nurse/profile-requests", icon: UserCog },
   
   { title: "Clinic Visits", href: "/nurse/clinic-visits", icon: Activity },
@@ -54,6 +61,7 @@ export const STUDENT_NAV = [
 
 export const getNavByRole = (role: string | null) => {
   switch (role) {
+    case "ADMIN": return ADMIN_NAV; // 👈 DINAGDAG NATIN ITO
     case "NURSE": return NURSE_NAV;
     case "HEAD_TEACHER": return HEAD_TEACHER_NAV;
     case "STUDENT": return STUDENT_NAV;
