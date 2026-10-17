@@ -127,6 +127,10 @@ model Patient {
   dateOfBirth     DateTime?
   
   contactNo       String?
+
+  // 👇 MGA BAGONG EMERGENCY CONTACT FIELDS 👇
+  emergencyContactPerson String?
+  emergencyContactNumber String?
   
   clearanceStatus String?     @default("CLEARED")
   
@@ -298,6 +302,11 @@ model HealthRecord {
   bloodType       String?   
   allergies       String?   
   conditionStatus String    @default("HEALTHY") 
+  
+  // 👇 MGA BAGONG VITALS FIELDS 👇
+  weight          Float?
+  height          Float?
+
   lastCheckup     DateTime?
 
   createdAt       DateTime  @default(now())
@@ -378,4 +387,3 @@ model SystemSetting {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
-// 👆👆👆 ========================================= 👆👆👆

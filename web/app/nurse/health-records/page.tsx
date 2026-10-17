@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Plus, Filter, FileHeart, Download, Eye, MoreVertical, Activity, X, Save, ShieldAlert, CheckCircle2, AlertCircle } from "lucide-react";
+import { Search, Plus, Filter, FileHeart, Download, Eye, MoreVertical, Activity, X, Save, ShieldAlert, CheckCircle2, AlertCircle, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // IDINAGDAG NATIN ITO PARA SA DIRECT PDF DOWNLOAD!
 import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas-pro"; // <-- BINAGO: Ginamit ang PRO version para iwas "lab" error!
+import html2canvas from "html2canvas-pro"; 
 
 export default function HealthRecordsPage() {
   const [records, setRecords] = useState<any[]>([]);
@@ -19,6 +19,7 @@ export default function HealthRecordsPage() {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,19 +32,30 @@ export default function HealthRecordsPage() {
     lastCheckup: ""
   });
 
+  // STATE PARA SA FULL EDIT FORM
+  const [editData, setEditData] = useState({
+    bloodType: "",
+    allergies: "",
+    conditionStatus: "",
+    weight: "",
+    height: "",
+    birthdate: "",
+    gender: "",
+    emergencyContactPerson: "",
+    emergencyContactNumber: ""
+  });
+
   // FETCH DATA MULA SA DATABASE
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
         
-        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
         const resRecords = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/health-records`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const dataRecords = await resRecords.json();
         
-        // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
         const resPatients = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/students`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
@@ -74,7 +86,6 @@ export default function HealthRecordsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/health-records`, {
         method: "POST",
         headers: {
@@ -102,7 +113,75 @@ export default function HealthRecordsPage() {
     }
   };
 
-  // 3-DOTS UPDATE STATUS
+  // OPEN EDIT MODAL AND POPULATE DATA
+  const handleOpenEditModal = (record: any) => {
+    setActiveMenuId(null);
+    setSelectedRecord(record);
+    setEditData({
+      bloodType: record.bloodType || "",
+      allergies: record.allergies || "None",
+      conditionStatus: record.conditionStatus || "HEALTHY",
+      weight: record.weight || "",
+      height: record.height || "",
+      birthdate: record.patient?.birthdate || "",
+      gender: record.patient?.gender || "",
+      emergencyContactPerson: record.patient?.emergencyContactPerson || "",
+      emergencyContactNumber: record.patient?.emergencyContactNumber || ""
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // SUBMIT EDITED RECORD
+  const handleEditRecord = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRecord) return;
+    setIsSubmitting(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/health-records/${selectedRecord.id}/full-update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            ...editData,
+            patientId: selectedRecord.patient.id // Ipasa rin ang patient ID para ma-update ang patient info table kung sakali
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Update local state without refreshing page
+        setRecords(prevRecords => prevRecords.map(rec => 
+          rec.id === selectedRecord.id ? { 
+            ...rec, 
+            ...editData,
+            patient: {
+                ...rec.patient,
+                birthdate: editData.birthdate,
+                gender: editData.gender,
+                emergencyContactPerson: editData.emergencyContactPerson,
+                emergencyContactNumber: editData.emergencyContactNumber
+            } 
+          } : rec
+        ));
+        setIsEditModalOpen(false);
+        alert("Health Record updated successfully!");
+      } else {
+        alert(data.error || "Failed to update health record");
+      }
+    } catch (err) {
+      console.error("Failed to update record", err);
+      alert("Make sure you have created the /full-update route in your Express backend!");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // 3-DOTS UPDATE STATUS (QUICK ACTION)
   const handleUpdateStatus = async (recordId: string, newStatus: string) => {
     setActiveMenuId(null); 
     setRecords(prevRecords => prevRecords.map(rec => 
@@ -111,7 +190,6 @@ export default function HealthRecordsPage() {
 
     try {
       const token = localStorage.getItem("token");
-      // 👇 BINAGO: Pinalitan ang localhost at ginamit ang Environment Variable 👇
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nurse/health-records/${recordId}/status`, {
         method: "PATCH",
         headers: {
@@ -131,34 +209,27 @@ export default function HealthRecordsPage() {
     setIsViewModalOpen(true);
   };
 
-  // ==============================================================
-  // BAGONG DIRECT 1-CLICK PDF DOWNLOAD LOGIC!
-  // ==============================================================
+  // PDF DOWNLOAD LOGIC
   const handleDownloadPDF = async (record: any) => {
-    setSelectedRecord(record); // I-set muna ang record para ma-load sa hidden div
+    setSelectedRecord(record); 
     
-    // Bigyan ng maliit na oras (300ms) ang React para i-render yung layout bago kunan ng litrato
     setTimeout(async () => {
       const element = document.getElementById("pdf-content");
       if (!element) return;
 
       try {
-        // I-capture ang hidden DOM layout
         const canvas = await html2canvas(element, { scale: 2 });
         const imgData = canvas.toDataURL("image/png");
 
-        // Gumawa ng PDF at ilagay yung na-capture na layout
         const pdf = new jsPDF("p", "mm", "a4");
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
         pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-        
-        // DIRETSO SAVE WALA NANG PRINT SCREEN!
         pdf.save(`Health_Record_${record.patient.firstName}_${record.patient.lastName}.pdf`);
       } catch (error) {
         console.error("Error generating PDF:", error);
-        alert("Failed to generate PDF. Make sure html2canvas-pro is installed.");
+        alert("Failed to generate PDF.");
       }
     }, 300); 
   };
@@ -172,7 +243,6 @@ export default function HealthRecordsPage() {
     return fullName.includes(search) || idNumber.includes(search) || condition.includes(search);
   });
 
-  // FUNCTION PARA SA KULAY NG CONDITION STATUS
   const getConditionStyle = (status: string) => {
     const s = (status || "").toUpperCase();
     if (s.includes("HEALTHY")) return "bg-green-100 text-green-700";
@@ -308,7 +378,6 @@ export default function HealthRecordsPage() {
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             
-                            {/* ACTION 1: VIEW EYE ICON */}
                             <Button 
                               variant="ghost" 
                               size="icon" 
@@ -319,7 +388,6 @@ export default function HealthRecordsPage() {
                               <Eye className="h-4 w-4" />
                             </Button>
 
-                            {/* ACTION 2: DIRECT DOWNLOAD PDF ICON */}
                             <Button 
                               variant="ghost" 
                               size="icon" 
@@ -330,7 +398,6 @@ export default function HealthRecordsPage() {
                               <Download className="h-4 w-4" />
                             </Button>
 
-                            {/* ACTION 3: 3-DOTS DROPDOWN */}
                             <div className="relative">
                               <Button 
                                 variant="ghost" 
@@ -342,7 +409,7 @@ export default function HealthRecordsPage() {
                               </Button>
 
                               {activeMenuId === record.id && (
-                                <div className="absolute right-0 top-10 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden text-left">
+                                <div className="absolute right-0 top-10 mt-1 w-56 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden text-left">
                                   <div className="px-3 py-2 bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                                     Update Condition
                                   </div>
@@ -357,6 +424,15 @@ export default function HealthRecordsPage() {
                                   </button>
                                   <button onClick={() => handleUpdateStatus(record.id, 'NEEDS ATTENTION')} className="w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 flex items-center gap-2 transition-colors">
                                     <AlertCircle className="h-4 w-4" /> Needs Attention
+                                  </button>
+                                  
+                                  {/* BAGONG EDIT FULL RECORD BUTTON */}
+                                  <div className="border-t border-slate-100 mt-1"></div>
+                                  <button 
+                                    onClick={() => handleOpenEditModal(record)} 
+                                    className="w-full px-4 py-3 text-sm text-blue-700 font-semibold hover:bg-blue-50 flex items-center gap-2 transition-colors"
+                                  >
+                                    <Edit className="h-4 w-4" /> Edit Full Record
                                   </button>
                                 </div>
                               )}
@@ -384,7 +460,6 @@ export default function HealthRecordsPage() {
         {isCreateModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-              
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
                 <h2 className="text-lg font-bold text-slate-800">Add New Health Record</h2>
                 <button 
@@ -482,7 +557,163 @@ export default function HealthRecordsPage() {
                   {isSubmitting ? "Saving..." : <><Save className="h-4 w-4 mr-2" /> Save Record</>}
                 </Button>
               </div>
+            </div>
+          </div>
+        )}
 
+        {/* ================= MODAL OVERLAY PARA SA FULL EDIT RECORD ================= */}
+        {isEditModalOpen && selectedRecord && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-blue-50 text-blue-900">
+                <div className="flex items-center gap-2">
+                  <Edit className="h-5 w-5" />
+                  <h2 className="text-lg font-bold">Edit Health Record: {selectedRecord.patient.firstName}</h2>
+                </div>
+                <button 
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="text-blue-400 hover:text-blue-600 transition-colors rounded-full p-1"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto">
+                <form id="editRecordForm" onSubmit={handleEditRecord} className="space-y-6">
+                  
+                  {/* MEDICAL INFO SECTION */}
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-800 border-b pb-2 mb-3">Medical Information</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Blood Type</label>
+                        <select 
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                          value={editData.bloodType}
+                          onChange={(e) => setEditData({...editData, bloodType: e.target.value})}
+                        >
+                          <option value="">Unknown</option>
+                          <option value="O+">O+</option>
+                          <option value="O-">O-</option>
+                          <option value="A+">A+</option>
+                          <option value="A-">A-</option>
+                          <option value="B+">B+</option>
+                          <option value="B-">B-</option>
+                          <option value="AB+">AB+</option>
+                          <option value="AB-">AB-</option>
+                        </select>
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Condition Status</label>
+                        <select 
+                          required 
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                          value={editData.conditionStatus}
+                          onChange={(e) => setEditData({...editData, conditionStatus: e.target.value})}
+                        >
+                          <option value="HEALTHY">Healthy</option>
+                          <option value="MONITOR (ALLERGIES)">Monitor (Allergies)</option>
+                          <option value="CHRONIC (ASTHMA)">Chronic (Asthma)</option>
+                          <option value="NEEDS ATTENTION">Needs Attention</option>
+                        </select>
+                      </div>
+
+                      <div className="col-span-2 space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Allergies</label>
+                        <input 
+                          placeholder="e.g. Peanuts, Dust, Pollen (Leave 'None' if none)" 
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm" 
+                          value={editData.allergies}
+                          onChange={(e) => setEditData({...editData, allergies: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* VITAL & PERSONAL STATS SECTION */}
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-800 border-b pb-2 mb-3">Vital & Personal Stats</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Weight (kg)</label>
+                        <input 
+                          type="number" step="0.1" placeholder="e.g. 55.5"
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                          value={editData.weight}
+                          onChange={(e) => setEditData({...editData, weight: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Height (cm)</label>
+                        <input 
+                          type="number" step="0.1" placeholder="e.g. 165"
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                          value={editData.height}
+                          onChange={(e) => setEditData({...editData, height: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Birthdate</label>
+                        <input 
+                          type="date"
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                          value={editData.birthdate}
+                          onChange={(e) => setEditData({...editData, birthdate: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Gender</label>
+                        <select 
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                          value={editData.gender}
+                          onChange={(e) => setEditData({...editData, gender: e.target.value})}
+                        >
+                          <option value="">Not Specified</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* EMERGENCY CONTACT SECTION */}
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-800 border-b pb-2 mb-3">Emergency Contact</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Contact Person Name</label>
+                        <input 
+                          placeholder="Full Name"
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                          value={editData.emergencyContactPerson}
+                          onChange={(e) => setEditData({...editData, emergencyContactPerson: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Contact Number</label>
+                        <input 
+                          placeholder="e.g. 09123456789"
+                          className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                          value={editData.emergencyContactNumber}
+                          onChange={(e) => setEditData({...editData, emergencyContactNumber: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+
+              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+                <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)} disabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button type="submit" form="editRecordForm" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white min-w-[120px]">
+                  {isSubmitting ? "Saving Updates..." : <><Save className="h-4 w-4 mr-2" /> Save Changes</>}
+                </Button>
+              </div>
             </div>
           </div>
         )}
@@ -577,7 +808,7 @@ export default function HealthRecordsPage() {
         <div 
           id="pdf-content" 
           className="absolute bg-white text-black p-8 font-sans w-[800px]"
-          style={{ top: '-10000px', left: '-10000px' }} // Nakatago ito sa paningin ng user, babasahin lang ng system pag nag download!
+          style={{ top: '-10000px', left: '-10000px' }}
         >
           <div className="text-center mb-8">
             <h1 className="text-3xl font-black uppercase tracking-widest text-slate-900">CLINNOVATE</h1>

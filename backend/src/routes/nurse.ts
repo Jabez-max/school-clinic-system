@@ -337,6 +337,62 @@ router.patch('/health-records/:id/status', async (req: any, res: any): Promise<a
 });
 
 // =====================================================================
+// 14.5 ROUTE PARA SA FULL UPDATE NG HEALTH RECORD (VITALS & EMERGENCY) ✨
+// =====================================================================
+router.put('/health-records/:id/full-update', async (req: any, res: any): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const {
+      bloodType,
+      allergies,
+      conditionStatus,
+      weight,
+      height,
+      birthdate,
+      gender,
+      emergencyContactPerson,
+      emergencyContactNumber,
+      patientId
+    } = req.body;
+
+    // 1. I-update ang Health Record Table (Vitals at Medical Profile)
+    const updatedRecord = await prisma.healthRecord.update({
+      where: { id },
+      data: {
+        bloodType: bloodType || null,
+        allergies: allergies || "None",
+        conditionStatus: conditionStatus || "HEALTHY",
+        weight: weight ? parseFloat(weight.toString()) : null,
+        height: height ? parseFloat(height.toString()) : null,
+      },
+    });
+
+    // 2. I-update ang Patient Table (Personal at Emergency Contact)
+    // Tandaan: Siguraduhin na nasa 'Patient' model mo ang mga sumusunod na column.
+    if (patientId) {
+      await prisma.patient.update({
+        where: { id: patientId },
+        data: {
+          dateOfBirth: birthdate ? new Date(birthdate) : null,
+          gender: gender || null,
+          emergencyContactPerson: emergencyContactPerson || null,
+          emergencyContactNumber: emergencyContactNumber || null,
+        },
+      });
+    }
+
+    return res.status(200).json({ 
+      message: "Health record fully updated successfully", 
+      record: updatedRecord 
+    });
+
+  } catch (error) {
+    console.error("[BACKEND] Error updating full health record:", error);
+    return res.status(500).json({ error: "Failed to update full health record." });
+  }
+});
+
+// =====================================================================
 // 15. ROUTE PARA SA MEDICAL HISTORY (KUNIN LAHAT)
 // =====================================================================
 router.get('/medical-history', async (req: any, res: any): Promise<any> => {
@@ -1260,8 +1316,7 @@ router.put('/profile-requests/:id', async (req: any, res: any): Promise<any> => 
       });
 
       if (targetPatient) {
-        // SCENARIO A: May existing Patient record na yung bagong ID (halimbawa, in-add na dati ng Nurse manually)
-        // I-u-update na lang natin ang details nito imbes na mag-create ng bago para iwas error!
+        // SCENARIO A: May existing Patient record na yung bagong ID
         await prismaTx.patient.update({
           where: { id: targetPatient.id },
           data: {
@@ -1272,7 +1327,7 @@ router.put('/profile-requests/:id', async (req: any, res: any): Promise<any> => 
           }
         });
       } else if (currentPatient) {
-        // SCENARIO B: Walang kaparehas na Patient record ang bagong ID, kaya pwede nating i-rename yung lumang record nang ligtas
+        // SCENARIO B: Walang kaparehas na Patient record ang bagong ID
         await prismaTx.patient.update({
           where: { id: currentPatient.id },
           data: {
@@ -1315,7 +1370,6 @@ router.put('/profile-requests/:id', async (req: any, res: any): Promise<any> => 
 
   } catch (error: any) {
     console.error('[BACKEND] Handle Profile Request Error:', error);
-    // 👇 IDINAGDAG: Ibabato natin ang specific na error message sa frontend para madaling ma-debug
     return res.status(500).json({ error: error.message || 'Failed to process profile request.' });
   }
 });
