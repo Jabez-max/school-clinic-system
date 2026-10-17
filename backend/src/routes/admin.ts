@@ -96,4 +96,28 @@ router.delete('/users/:id', async (req, res) => {
   }
 });
 
+// ==============================================================
+// BAGONG DAGDAG: AUDIT LOGS ENDPOINT
+// ==============================================================
+
+// GET /api/admin/audit-logs - Kukuha ng mga logs mula sa database para sa table
+router.get('/audit-logs', async (req, res) => {
+  try {
+    const logs = await prisma.auditLog.findMany({
+      orderBy: { createdAt: 'desc' }, // Pinakabago sa itaas
+      include: {
+        user: { 
+          // Kukunin natin ang pangalan at role ng admin na gumawa ng aksyon
+          select: { firstName: true, lastName: true, role: true }
+        }
+      }
+    });
+    
+    res.json(logs);
+  } catch (error) {
+    console.error("Error fetching audit logs:", error);
+    res.status(500).json({ error: "Failed to fetch audit logs" });
+  }
+});
+
 export default router;
