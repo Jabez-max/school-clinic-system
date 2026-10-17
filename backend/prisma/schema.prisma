@@ -48,38 +48,34 @@ enum UrgencyLevel {
   EMERGENCY
 }
 
-// 👇 BAGONG ENUM PARA SA PROFILE UPDATE REQUESTS
 enum ProfileRequestStatus {
   PENDING
   APPROVED
   REJECTED
 }
-// 👆 ==========================================
+// ==========================================
 
 // ================= MODELS =================
 
 model User {
-  id             String    @id @default(cuid())
-  schoolId       String    @unique 
-  email          String    @unique 
+  id              String   @id @default(cuid())
+  schoolId        String   @unique 
+  email           String   @unique 
   
-  // BINAGO PARA SA GOOGLE LOGIN
-  password       String?   // Ginawang optional
-  googleId       String?   @unique // Bagong field para sa Google ID
+  password        String?  
+  googleId        String?  @unique 
   
-  // 👇 GINAWANG OPTIONAL (?) PARA HINDI MAG-ERROR SA MGA LUMANG ACCOUNTS 👇
-  firstName      String?
-  lastName       String?
-  // 👆 ============================================================== 👆
+  firstName       String?
+  lastName        String?
 
-  role           Role      @default(NURSE)
-  isActive       Boolean   @default(true) 
+  role            Role      @default(NURSE)
+  isActive        Boolean   @default(true) 
   
-  failedLogins   Int       @default(0)    
-  lockedUntil    DateTime?                
+  failedLogins    Int       @default(0)    
+  lockedUntil     DateTime?                
 
-  handledGrade   String?   
-  handledSection String?   
+  handledGrade    String?   
+  handledSection  String?   
 
   auditLogs           AuditLog[]                
   referralsMade       Referral[]
@@ -87,25 +83,19 @@ model User {
   handledVisits       ClinicVisit[] @relation("HandledVisits")
   handledAppointments ClinicRequest[] @relation("HandledAppointments") 
 
-  // 👇 BAGONG RELATIONS PARA SA PROFILE REQUESTS 👇
   profileRequests         ProfileUpdateRequest[] @relation("StudentProfileRequests")
   reviewedProfileRequests ProfileUpdateRequest[] @relation("NurseReviewedRequests")
-  // 👆 ========================================= 👆
 
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
-// 👇👇👇 BAGONG MODEL PARA SA PROFILE UPDATE REQUESTS 👇👇👇
 model ProfileUpdateRequest {
   id                  String               @id @default(cuid())
   
-  // Ang estudyanteng nag-request
   userId              String
-  // 👇 FIX: Dinagdag ang onDelete: Cascade
   user                User                 @relation("StudentProfileRequests", fields: [userId], references: [id], onDelete: Cascade)
 
-  // Mga impormasyong gustong palitan (optional dahil baka name lang or section lang ang papalitan)
   requestedFirstName  String?
   requestedLastName   String?
   requestedSchoolId   String?
@@ -115,7 +105,6 @@ model ProfileUpdateRequest {
   reason              String?              @db.Text
   status              ProfileRequestStatus @default(PENDING)
 
-  // Ang Nurse na nag-approve o nag-reject
   reviewedById        String?
   reviewedBy          User?                @relation("NurseReviewedRequests", fields: [reviewedById], references: [id])
   reviewedAt          DateTime?
@@ -123,7 +112,6 @@ model ProfileUpdateRequest {
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 }
-// 👆👆👆 ================================================== 👆👆👆
 
 
 model Patient {
@@ -136,7 +124,6 @@ model Patient {
   section         String?        
   gender          String
   
-  // 👇 FIX: GINAWANG OPTIONAL (?) ANG DATE OF BIRTH 👇
   dateOfBirth     DateTime?
   
   contactNo       String?
@@ -161,7 +148,6 @@ model Patient {
 model ClinicVisit {
   id                  String   @id @default(uuid())
   patientId           String
-  // 👇 FIX: Dinagdag ang onDelete: Cascade
   patient             Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
   
   nurseId             String?  
@@ -204,7 +190,6 @@ model ClinicVisit {
 model ClinicRequest {
   id                 String        @id @default(cuid())
   patientId          String
-  // 👇 FIX: Dinagdag ang onDelete: Cascade
   patient            Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
   
   nurseId            String?       
@@ -232,7 +217,6 @@ model ClinicRequest {
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String?  
-  // 👇 FIX: Dinagdag ang onDelete: Cascade
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   action    String   
@@ -247,7 +231,6 @@ model AuditLog {
 model Referral {
   id          String         @id @default(cuid())
   patientId   String
-  // 👇 FIX: Dinagdag ang onDelete: Cascade
   patient     Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
   
   referredBy  String?        
@@ -294,7 +277,6 @@ model InventoryItem {
 model EmergencyIncident {
   id           String   @id @default(cuid())
   patientId    String?  
-  // 👇 FIX: Dinagdag ang onDelete: Cascade
   patient      Patient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
   
   incidentType String   
@@ -312,7 +294,6 @@ model EmergencyIncident {
 model HealthRecord {
   id              String    @id @default(cuid())
   patientId       String    @unique
-  // 👇 FIX: Dinagdag ang onDelete: Cascade
   patient         Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
   bloodType       String?   
   allergies       String?   
@@ -326,7 +307,6 @@ model HealthRecord {
 model MedicalHistory {
   id          String    @id @default(cuid())
   patientId   String
-  // 👇 FIX: Dinagdag ang onDelete: Cascade
   patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
   
   condition   String    
@@ -361,3 +341,41 @@ model Report {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// 👇👇👇 MGA BAGONG ADMIN MASTER DATA MODELS 👇👇👇
+
+// 1. Courses / Programs (Para hindi na hardcoded ang BSIT, BSCS, etc.)
+model Course {
+  id          String    @id @default(cuid())
+  courseCode  String    @unique // Halimbawa: "BSIT", "BSCS"
+  courseName  String    // Halimbawa: "Bachelor of Science in Information Technology"
+  
+  sections    Section[] // Nakakonekta sa mga Sections
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// 2. Sections / Block (Halimbawa: INF 244, INF 245)
+model Section {
+  id          String   @id @default(cuid())
+  sectionName String   
+  
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 3. System Settings (Para pwedeng palitan ang Academic Year o Semester via Admin Page)
+model SystemSetting {
+  id           String   @id @default(cuid())
+  settingKey   String   @unique // Halimbawa: "ACADEMIC_YEAR", "CURRENT_SEMESTER"
+  settingValue String   // Halimbawa: "2026-2027", "1st Semester"
+  description  String?  @db.Text
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+// 👆👆👆 ========================================= 👆👆👆
