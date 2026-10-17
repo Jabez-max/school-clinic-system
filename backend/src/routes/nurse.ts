@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma'; 
 import jwt from 'jsonwebtoken'; 
-// 👇 BAGO: In-import na natin pati ang sendBatchEmails
 import { sendEmail, sendBatchEmails } from '../utils/mailer';
 
 const router = Router();
@@ -259,7 +258,8 @@ router.get('/health-records', async (req: any, res: any): Promise<any> => {
   try {
     const records = await prisma.healthRecord.findMany({
       include: {
-        patient: { select: { firstName: true, lastName: true, idNumber: true } }
+        // 👇 ITO YUNG BINAGO PARA MAKUHA LAHAT NG DETALYE NG PATIENT 👇
+        patient: true
       },
       orderBy: { updatedAt: 'desc' } 
     });
@@ -368,7 +368,6 @@ router.put('/health-records/:id/full-update', async (req: any, res: any): Promis
     });
 
     // 2. I-update ang Patient Table (Personal at Emergency Contact)
-    // Tandaan: Siguraduhin na nasa 'Patient' model mo ang mga sumusunod na column.
     if (patientId) {
       await prisma.patient.update({
         where: { id: patientId },

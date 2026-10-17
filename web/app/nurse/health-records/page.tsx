@@ -123,7 +123,8 @@ export default function HealthRecordsPage() {
       conditionStatus: record.conditionStatus || "HEALTHY",
       weight: record.weight || "",
       height: record.height || "",
-      birthdate: record.patient?.birthdate || "",
+      // 👇 INAYOS: Kinonvert ang dateOfBirth para mabasa ng date picker natin
+      birthdate: record.patient?.dateOfBirth ? new Date(record.patient.dateOfBirth).toISOString().split('T')[0] : "",
       gender: record.patient?.gender || "",
       emergencyContactPerson: record.patient?.emergencyContactPerson || "",
       emergencyContactNumber: record.patient?.emergencyContactNumber || ""
@@ -147,7 +148,8 @@ export default function HealthRecordsPage() {
         },
         body: JSON.stringify({
             ...editData,
-            patientId: selectedRecord.patient.id // Ipasa rin ang patient ID para ma-update ang patient info table kung sakali
+            // 👇 INAYOS: Ginamit natin mismo ang patientId mula sa record
+            patientId: selectedRecord.patientId 
         })
       });
 
@@ -161,7 +163,7 @@ export default function HealthRecordsPage() {
             ...editData,
             patient: {
                 ...rec.patient,
-                birthdate: editData.birthdate,
+                dateOfBirth: editData.birthdate, // Itinama ang variable name
                 gender: editData.gender,
                 emergencyContactPerson: editData.emergencyContactPerson,
                 emergencyContactNumber: editData.emergencyContactNumber
@@ -568,7 +570,7 @@ export default function HealthRecordsPage() {
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-blue-50 text-blue-900">
                 <div className="flex items-center gap-2">
                   <Edit className="h-5 w-5" />
-                  <h2 className="text-lg font-bold">Edit Health Record: {selectedRecord.patient.firstName}</h2>
+                  <h2 className="text-lg font-bold">Edit Health Record: {selectedRecord.patient?.firstName}</h2>
                 </div>
                 <button 
                   onClick={() => setIsEditModalOpen(false)}
@@ -752,11 +754,11 @@ export default function HealthRecordsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Patient Name</p>
-                    <p className="text-sm font-bold text-slate-800">{selectedRecord.patient.firstName} {selectedRecord.patient.lastName}</p>
+                    <p className="text-sm font-bold text-slate-800">{selectedRecord.patient?.firstName} {selectedRecord.patient?.lastName}</p>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Student ID</p>
-                    <p className="text-sm font-medium text-slate-800">{selectedRecord.patient.idNumber}</p>
+                    <p className="text-sm font-medium text-slate-800">{selectedRecord.patient?.idNumber}</p>
                   </div>
                 </div>
 
@@ -829,8 +831,8 @@ export default function HealthRecordsPage() {
           <div className="mb-8 border border-slate-300 p-5 rounded-lg">
             <h3 className="font-bold text-lg mb-4 border-b pb-2">Patient Demographics</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <p><span className="font-bold text-slate-600 block">Full Name:</span> {selectedRecord.patient.firstName} {selectedRecord.patient.lastName}</p>
-              <p><span className="font-bold text-slate-600 block">Student ID Number:</span> {selectedRecord.patient.idNumber}</p>
+              <p><span className="font-bold text-slate-600 block">Full Name:</span> {selectedRecord.patient?.firstName} {selectedRecord.patient?.lastName}</p>
+              <p><span className="font-bold text-slate-600 block">Student ID Number:</span> {selectedRecord.patient?.idNumber}</p>
             </div>
           </div>
 
